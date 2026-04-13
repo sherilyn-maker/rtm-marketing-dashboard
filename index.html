@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real Time Marketing — Performance Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<style>
+:root {
+  --bg: #f4f5f7; --card: #ffffff; --card2: #f8f9fb; --border: #e0e2ea;
+  --text: #111827; --muted: #6b7280; --dim: #9ca3af;
+  --red: #dc2626; --orange: #ea580c; --yellow: #d97706; --green: #16a34a;
+  --blue: #2563eb; --purple: #7c3aed; --teal: #0891b2;
+  --gap: 14px; --r: 10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;line-height:1.5}
+.wrap{max-width:1600px;margin:0 auto;padding:20px 18px}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#1e1b4b,#1e3a5f,#064e3b);border:1px solid #c7d2fe;border-radius:var(--r);padding:22px 28px;margin-bottom:var(--gap);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.hdr h1{font-size:21px;font-weight:800;background:linear-gradient(90deg,#a855f7,#4d9fff,#00d46a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr p{font-size:12px;color:var(--muted);margin-top:3px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-red{background:rgba(255,61,61,0.15);border:1px solid rgba(255,61,61,0.35);color:#ff7070}
+.badge-green{background:rgba(0,212,106,0.12);border:1px solid rgba(0,212,106,0.3);color:#00d46a}
+.badge-blue{background:rgba(77,159,255,0.12);border:1px solid rgba(77,159,255,0.3);color:#4d9fff}
+.badge-purple{background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--gap);margin-bottom:var(--gap)}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.r::after{background:var(--red)}.kpi.o::after{background:var(--orange)}.kpi.y::after{background:var(--yellow)}
+.kpi.g::after{background:var(--green)}.kpi.b::after{background:var(--blue)}.kpi.p::after{background:var(--purple)}
+.kpi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:5px}
+.kpi-val{font-size:24px;font-weight:800}
+.kpi.r .kpi-val{color:var(--red)}.kpi.o .kpi-val{color:var(--orange)}.kpi.y .kpi-val{color:var(--yellow)}
+.kpi.g .kpi-val{color:var(--green)}.kpi.b .kpi-val{color:var(--blue)}.kpi.p .kpi-val{color:var(--purple)}
+.kpi-sub{font-size:10px;color:var(--dim);margin-top:3px}
+.kpi-delta{font-size:10px;font-weight:600;margin-top:2px}
+.delta-bad{color:var(--red)}.delta-warn{color:var(--orange)}.delta-good{color:var(--green)}
+
+/* SECTION */
+.sec{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:var(--gap)}
+.sec-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.dot.r{background:var(--red)}.dot.g{background:var(--green)}.dot.o{background:var(--orange)}.dot.p{background:var(--purple)}
+
+/* GRID LAYOUTS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
+.grid-3-2{display:grid;grid-template-columns:3fr 2fr;gap:var(--gap);margin-bottom:var(--gap)}
+.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl thead th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
+.tbl tbody td{padding:9px 12px;border-bottom:1px solid rgba(0,0,0,0.07);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover{background:rgba(0,0,0,0.025)}
+
+/* PILLS & BARS */
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.pill-red{background:rgba(255,61,61,0.15);color:#ff7070;border:1px solid rgba(255,61,61,0.25)}
+.pill-orange{background:rgba(255,128,0,0.15);color:#ffa040;border:1px solid rgba(255,128,0,0.25)}
+.pill-green{background:rgba(0,212,106,0.12);color:#00d46a;border:1px solid rgba(0,212,106,0.25)}
+.pill-blue{background:rgba(77,159,255,0.12);color:#4d9fff;border:1px solid rgba(77,159,255,0.25)}
+.pill-purple{background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.25)}
+.pill-gray{background:rgba(100,100,130,0.15);color:#8888aa;border:1px solid rgba(100,100,130,0.25)}
+.mini-bar-wrap{display:flex;align-items:center;gap:6px}
+.mini-bar{flex:1;height:5px;background:rgba(0,0,0,0.08);border-radius:3px;min-width:50px}
+.mini-fill{height:100%;border-radius:3px}
+
+/* ANALYSIS BOXES */
+.analysis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);margin-bottom:var(--gap)}
+.analysis-box{border-radius:var(--r);padding:18px 20px;border:1px solid}
+.strength-box{background:rgba(0,212,106,0.05);border-color:rgba(0,212,106,0.2)}
+.issue-box{background:rgba(255,61,61,0.05);border-color:rgba(255,61,61,0.2)}
+.rec-box{background:rgba(77,159,255,0.05);border-color:rgba(77,159,255,0.2)}
+.analysis-box h3{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.strength-box h3{color:#00d46a}.issue-box h3{color:#ff7070}.rec-box h3{color:#4d9fff}
+.analysis-box ul{list-style:none;padding:0}
+.analysis-box ul li{font-size:12px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.06);color:#374151;line-height:1.5;display:flex;gap:7px;align-items:flex-start}
+.analysis-box ul li:last-child{border-bottom:none}
+.analysis-box ul li::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.strength-box ul li::before{background:#00d46a}.issue-box ul li::before{background:#ff7070}.rec-box ul li::before{background:#4d9fff}
+
+/* AI OVERVIEW BOX */
+.ai-box{background:linear-gradient(135deg,rgba(168,85,247,0.06),rgba(77,159,255,0.06));border:1px solid rgba(168,85,247,0.25);border-radius:var(--r);padding:18px 20px;margin-bottom:var(--gap)}
+.ai-box h3{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#c084fc;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.ai-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px}
+.ai-cell{background:rgba(237,233,254,0.5);border-radius:8px;padding:12px 14px;border:1px solid rgba(168,85,247,0.15)}
+.ai-cell h4{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#a855f7;margin-bottom:6px}
+.ai-cell p{font-size:11px;color:#4b5563;line-height:1.5}
+
+/* RANKING TABLE */
+.rank-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
+
+/* CONVERSION SECTION */
+.conv-analysis{background:rgba(255,61,61,0.04);border:1px solid rgba(255,61,61,0.2);border-radius:var(--r);padding:18px 20px;margin-bottom:var(--gap)}
+.conv-analysis h3{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#ff7070;margin-bottom:14px}
+.conv-reasons{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.conv-reason{background:rgba(0,0,0,0.03);border-radius:8px;padding:14px;border:1px solid rgba(255,61,61,0.15)}
+.conv-reason h4{font-size:11px;font-weight:700;color:#ff9090;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.conv-reason p{font-size:11px;color:#4b5563;line-height:1.5}
+.conv-stat{font-size:18px;font-weight:800;color:var(--red);display:block;margin-bottom:3px}
+
+/* CHANNEL BADGE */
+.ch{display:inline-flex;align-items:center;gap:5px;font-size:11px}
+.ch-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+canvas{max-height:240px}
+.chart-wrap{max-height:240px}
+
+/* GEO */
+.geo-grid{display:grid;grid-template-columns:3fr 2fr;gap:var(--gap);margin-bottom:var(--gap)}
+.geo-flag{font-size:14px;margin-right:5px}
+.geo-warn{background:rgba(255,200,0,0.06);border:1px solid rgba(255,200,0,0.22);border-left:3px solid var(--yellow);border-radius:6px;padding:10px 14px;font-size:11px;color:#ccaa44;line-height:1.6;margin-top:12px}
+.geo-warn strong{color:var(--yellow)}
+
+/* LANDING PAGE TABLE */
+.lp-label{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.lp-internal{background:rgba(255,61,61,0.12);color:#ff9090;border:1px solid rgba(255,61,61,0.2)}
+.lp-real{background:rgba(0,212,106,0.1);color:#00d46a;border:1px solid rgba(0,212,106,0.2)}
+.lp-mixed{background:rgba(255,200,0,0.1);color:#ffc800;border:1px solid rgba(255,200,0,0.2)}
+.conv-flag{font-size:10px;font-weight:700}
+
+/* CONVERSION AUDIT */
+.audit-panel{background:rgba(255,61,61,0.04);border:1px solid rgba(255,61,61,0.22);border-radius:var(--r);padding:18px 20px;margin-bottom:var(--gap)}
+.audit-panel h3{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#ff7070;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.audit-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.audit-cell{background:rgba(0,0,0,0.03);border-radius:8px;padding:14px;border:1px solid rgba(255,61,61,0.1)}
+.audit-cell h4{font-size:11px;font-weight:700;color:#ff9090;margin-bottom:8px}
+.audit-cell ul{list-style:none;padding:0}
+.audit-cell ul li{font-size:11px;color:#374151;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.06);display:flex;gap:7px;align-items:flex-start;line-height:1.5}
+.audit-cell ul li:last-child{border-bottom:none}
+.audit-cell ul li::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px;background:#ff4444}
+.audit-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.audit-step{background:rgba(0,0,0,0.03);border-radius:8px;padding:12px;border:1px solid rgba(77,159,255,0.15);text-align:center}
+.audit-step .step-num{font-size:18px;font-weight:800;color:#4d9fff;display:block;margin-bottom:4px}
+.audit-step p{font-size:11px;color:#4b5563;line-height:1.4}
+
+/* OPPORTUNITY */
+.opp-panel{background:rgba(0,212,106,0.03);border:1px solid rgba(0,212,106,0.18);border-radius:var(--r);padding:18px 20px;margin-bottom:var(--gap)}
+.opp-panel h3{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#00d46a;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.gain-up{color:#00d46a;font-weight:700}.gain-hi{color:#a855f7;font-weight:700}
+.opp-note{font-size:11px;color:#374151;margin-top:10px;padding:8px 12px;background:rgba(0,212,106,0.05);border-radius:6px;line-height:1.6}
+
+.internal-warn{background:rgba(255,200,0,0.06);border:1px solid rgba(255,200,0,0.2);border-radius:6px;padding:8px 12px;font-size:11px;color:#ccaa44;margin-top:10px;line-height:1.5}
+.internal-warn strong{color:var(--yellow)}
+
+.footer{text-align:center;padding:16px 0 8px;color:var(--dim);font-size:11px}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}.grid-3,.analysis-grid,.conv-reasons{grid-template-columns:1fr 1fr}.ai-row{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3,.grid-3-2,.grid-2-1,.analysis-grid,.conv-reasons,.rank-row,.ai-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <h1>Real Time Marketing — Performance Dashboard</h1>
+    <p>realtimemarketing.com &nbsp;·&nbsp; Feb 28 – Apr 8, 2026 (40 days) &nbsp;·&nbsp; GA4 + Google Search Console</p>
+  </div>
+  <div class="badges">
+    <span class="badge badge-red">🔴 0 Organic Leads</span>
+    <span class="badge badge-blue">364 GSC Clicks</span>
+    <span class="badge badge-purple">275K Impressions</span>
+    <span class="badge badge-green">Generated Apr 8, 2026</span>
+  </div>
+</div>
+
+<!-- KPI ROW -->
+<div class="kpi-row">
+  <div class="kpi r">
+    <div class="kpi-lbl">GSC Clicks (40d)</div>
+    <div class="kpi-val">364</div>
+    <div class="kpi-sub">~9 clicks/day</div>
+    <div class="kpi-delta delta-bad">▼ Very Low for scale</div>
+  </div>
+  <div class="kpi o">
+    <div class="kpi-lbl">Impressions</div>
+    <div class="kpi-val">275K</div>
+    <div class="kpi-sub">Massive reach, low capture</div>
+    <div class="kpi-delta delta-bad">CTR 0.13% vs 2-5% target</div>
+  </div>
+  <div class="kpi y">
+    <div class="kpi-lbl">Avg Position</div>
+    <div class="kpi-val">20.2</div>
+    <div class="kpi-sub">Mostly page 2+</div>
+    <div class="kpi-delta delta-bad">↓ Target: ≤10 for leads</div>
+  </div>
+  <div class="kpi b">
+    <div class="kpi-lbl">GA4 Sessions</div>
+    <div class="kpi-val">17,209</div>
+    <div class="kpi-sub">Incl. ~8.8K internal traffic</div>
+    <div class="kpi-delta delta-warn">⚠ Data polluted</div>
+  </div>
+  <div class="kpi g">
+    <div class="kpi-lbl">Engagement Rate</div>
+    <div class="kpi-val">46.3%</div>
+    <div class="kpi-sub">Desktop: 54.2% · Mobile: 37.8%</div>
+    <div class="kpi-delta delta-warn">Industry avg: ~50-60%</div>
+  </div>
+  <div class="kpi g">
+    <div class="kpi-lbl">Organic Eng. Rate</div>
+    <div class="kpi-val">68.3%</div>
+    <div class="kpi-sub">From 2,608 organic sessions</div>
+    <div class="kpi-delta delta-good">↑ Above 60% benchmark</div>
+  </div>
+  <div class="kpi p">
+    <div class="kpi-lbl">Organic Conversions</div>
+    <div class="kpi-val">11</div>
+    <div class="kpi-sub">From 2,405 organic sessions</div>
+    <div class="kpi-delta delta-bad">0.46% rate · Type unknown</div>
+  </div>
+</div>
+
+<!-- CHARTS ROW: Daily Trend + Traffic Mix -->
+<div class="grid-3-2" style="margin-bottom:var(--gap)">
+  <div class="sec" style="margin-bottom:0">
+    <div class="sec-title"><span class="dot b"></span>Daily Sessions Trend — 40 Days</div>
+    <canvas id="dailyChart"></canvas>
+    <div class="internal-warn" style="margin-top:10px"><strong>⚠ Data Quality Warning:</strong> ~8,820 of 17,209 sessions are internal (client dashboard, admin pages, review widgets). Real external visitor sessions ≈ 8,389/40 days (~210/day).</div>
+  </div>
+  <div class="sec" style="margin-bottom:0">
+    <div class="sec-title"><span class="dot p"></span>Traffic by Channel</div>
+    <canvas id="channelChart" class="chart-wrap"></canvas>
+  </div>
+</div>
+
+<!-- KEYWORDS + PAGES -->
+<div class="grid-2" style="margin-bottom:var(--gap)">
+  <!-- KEYWORDS -->
+  <div class="sec" style="margin-bottom:0">
+    <div class="sec-title"><span class="dot g"></span>Top Keywords — GSC Last 40 Days</div>
+    <table class="tbl" id="kw-table">
+      <thead><tr>
+        <th>Keyword</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Avg Pos.</th><th>Type</th>
+      </tr></thead>
+      <tbody id="kw-tbody"></tbody>
+    </table>
+  </div>
+  <!-- PAGES -->
+  <div class="sec" style="margin-bottom:0">
+    <div class="sec-title"><span class="dot o"></span>Top Pages by GSC Clicks</div>
+    <table class="tbl" id="pg-table">
+      <thead><tr>
+        <th>Page</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Pos.</th>
+      </tr></thead>
+      <tbody id="pg-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- KNOWN RANKINGS vs GSC -->
+<div class="rank-row">
+  <div class="sec" style="margin-bottom:0">
+    <div class="sec-title"><span class="dot p"></span>Confirmed Rankings (Tampa, FL IP) vs GSC National Average</div>
+    <table class="tbl">
+      <thead><tr><th>Keyword</th><th>Tampa Rank</th><th>GSC Avg Position</th><th>GSC Clicks</th><th>GSC Impressions</th><th>CTR</th><th>Gap Analysis</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--text);font-weight:600">LSA for plumbers</td>
+          <td><span class="pill pill-green">#2</span></td>
+          <td><span style="color:var(--orange)">~20</span></td>
+          <td>1</td><td>578</td><td>0.17%</td>
+          <td style="font-size:11px;color:#4b5563">AI Overview likely above — eating clicks despite rank</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text);font-weight:600">LSA for HVAC</td>
+          <td><span class="pill pill-green">#4</span></td>
+          <td><span style="color:var(--orange)">~10</span></td>
+          <td>6</td><td>9,079</td><td>0.07%</td>
+          <td style="font-size:11px;color:#4b5563">Massive impressions, 0.07% CTR — AI Overviews + competitor ads capturing intent</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text);font-weight:600">LSA management for plumbers</td>
+          <td><span class="pill pill-green">#3</span></td>
+          <td><span style="color:var(--orange)">~20</span></td>
+          <td>4</td><td>4,811</td><td>0.08%</td>
+          <td style="font-size:11px;color:#4b5563">Position varies heavily by location — national avg much lower</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text);font-weight:600">LSA management for HVAC</td>
+          <td><span class="pill pill-green">#2</span></td>
+          <td><span style="color:var(--orange)">~9.5</span></td>
+          <td>6</td><td>9,079</td><td>0.07%</td>
+          <td style="font-size:11px;color:#4b5563">Google HVAC LSA page: 9,079 impressions, only 6 clicks — AI above</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text);font-weight:600">Digital marketing for plumbers</td>
+          <td><span class="pill pill-green">#2</span></td>
+          <td><span style="color:var(--orange)">14.5</span></td>
+          <td>3</td><td>2,733</td><td>0.11%</td>
+          <td style="font-size:11px;color:#4b5563">National avg pos. 14.5 vs Tampa #2 — geo-ranking discrepancy</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="internal-warn" style="margin-top:10px"><strong>💡 Key Insight:</strong> Confirming #2 via Tampa IP is encouraging, but GSC shows most of these keywords have 0.07-0.11% CTR nationally. That means AI Overviews and paid ads above your organic position are absorbing the vast majority of clicks before they reach your listing.</div>
+  </div>
+
+  <!-- DEVICE BREAKDOWN -->
+  <div class="sec" style="margin-bottom:0">
+    <div class="sec-title"><span class="dot b"></span>Devices — GA4 vs GSC</div>
+    <table class="tbl" style="margin-bottom:14px">
+      <thead><tr><th>Device</th><th>GA4 Sessions</th><th>GA4 Eng%</th><th>GSC Clicks</th><th>GSC CTR</th></tr></thead>
+      <tbody>
+        <tr><td>🖥 Desktop</td><td>9,510</td><td><span class="pill pill-green">54.2%</span></td><td>273</td><td>0.13%</td></tr>
+        <tr><td>📱 Mobile</td><td>7,504</td><td><span class="pill pill-orange">37.8%</span></td><td>91</td><td>0.16%</td></tr>
+        <tr><td>📟 Tablet</td><td>115</td><td><span class="pill pill-blue">47.0%</span></td><td>0</td><td>0%</td></tr>
+      </tbody>
+    </table>
+    <div class="sec-title" style="margin-top:14px"><span class="dot o"></span>Brand vs Non-Brand Click Split</div>
+    <canvas id="brandChart" style="max-height:180px"></canvas>
+    <div style="margin-top:10px;font-size:11px;color:#4b5563;line-height:1.6">
+      <strong style="color:#a855f7">35% of all clicks are brand searches</strong> — people who already know RTM. Only 65% of clicks come from people discovering the agency for the first time. Of those, most are low-intent queries.<br><br>
+      <strong style="color:#ff7070">Non-brand commercial keywords</strong> (LSA management, digital marketing for plumbers) have 275K+ impressions but only ~30 combined clicks — a 0.01% capture rate.
+    </div>
+  </div>
+</div>
+
+<!-- WHY NO CONVERSIONS -->
+<div class="conv-analysis">
+  <h3>🔍 Why Clicks Are Not Converting — Root Cause Analysis</h3>
+  <div class="conv-reasons">
+    <div class="conv-reason">
+      <h4>1 · Position + AI Overview Stack</h4>
+      <span class="conv-stat">0.07–0.13%</span>
+      <p>Even at rank #2 in Tampa, Google's AI Overviews appear above organic results for queries like "LSA for HVAC" and "digital marketing for plumbers." These answer the user's question instantly — no click needed. The 275K impressions are real, but clicks are stolen before they reach your listing. 9,079 impressions on the HVAC LSA page yielded only 6 clicks.</p>
+    </div>
+    <div class="conv-reason">
+      <h4>2 · Paid Competitor Ads Above Organic</h4>
+      <span class="conv-stat">4–6 ads</span>
+      <p>For high-intent queries like "LSA management for plumbers" and "digital marketing for home services," agencies like Cardinal Digital, Scorpion, and Lendio are running Google Ads that appear in positions 1–4 above all organic results. Users searching with purchase intent click the first compelling ad — not position #2 organic.</p>
+    </div>
+    <div class="conv-reason">
+      <h4>3 · Conversion Tracking Not Measuring Real Leads</h4>
+      <span class="conv-stat">322 "convs"</span>
+      <p>GA4 reports 322 total conversions (216 CPC, 95 Direct, 11 Organic) — but these are almost certainly micro-events (button clicks, page visits, chat widget opens), NOT actual contact form submissions or booked calls. If real lead forms were converting at this rate, you'd know about it. Conversion events need to be audited and tied to actual form submissions.</p>
+    </div>
+    <div class="conv-reason">
+      <h4>4 · Brand-Heavy Traffic Profile</h4>
+      <span class="conv-stat">35% brand</span>
+      <p>The top 4 keywords by clicks are all brand or near-brand ("real time marketing", "realtime marketing", "realtimemarketing", "real time marketing reviews"). People searching these terms already know you — they're not new leads. True top-of-funnel keywords ("LSA agency", "home service marketing company") generate almost zero clicks.</p>
+    </div>
+    <div class="conv-reason">
+      <h4>5 · Internal Traffic Polluting GA4</h4>
+      <span class="conv-stat">~51% noise</span>
+      <p>Of 17,209 GA4 sessions, approximately 8,820 come from internal sources: dashboard.realtimemarketing.com (3,220), client site referrals (goldstar: 236, inhouseplumbing: 114, canyonhills: 77, farmingtonvalley: 55, beisplumbing: 66), admin pages (/login, /reports, /user), and review widgets. These inflate all metrics and mask real prospect behavior.</p>
+    </div>
+    <div class="conv-reason">
+      <h4>6 · Mobile Experience Gap</h4>
+      <span class="conv-stat">37.8% eng</span>
+      <p>Mobile accounts for 43.6% of GA4 sessions but only 37.8% engagement — the lowest of any device. With 91 of 364 organic clicks landing on mobile (25%), a poor mobile experience means leads are bouncing before they see a contact form. For B2B agencies, desktop converts better, but mobile can't be ignored when it's nearly half of traffic.</p>
+    </div>
+  </div>
+</div>
+
+<!-- STRENGTHS / ISSUES / RECS -->
+<div class="analysis-grid">
+  <div class="analysis-box strength-box">
+    <h3>✅ Strengths</h3>
+    <ul>
+      <li>Confirmed top-3 rankings in Tampa FL for all 5 key service terms — foundation is there</li>
+      <li>Google organic engagement rate of 68.3% — visitors who DO click are genuinely interested</li>
+      <li>GBP traffic shows strong local presence — 91 sessions with high intent</li>
+      <li>275K impressions shows Google indexes and serves the site broadly for relevant queries</li>
+      <li>Google CPC shows 56.6% engagement and 216 tracked conversions — paid performs better</li>
+      <li>Newsletter/email traffic at 62.7% engagement and 4 conversions — audience is warm</li>
+      <li>5m 20s average session duration — real visitors who land are deeply engaged</li>
+      <li>Strong brand search CTR: "realtimemarketing" hits 61.5% CTR (direct navigators)</li>
+    </ul>
+  </div>
+  <div class="analysis-box issue-box">
+    <h3>🔴 Issues</h3>
+    <ul>
+      <li>0.13% overall CTR despite ranking in top 3 for core keywords — AI Overviews absorbing clicks</li>
+      <li>Average GSC position 20.2 nationally vs Tampa #2 — massive geo-ranking gap hiding true performance</li>
+      <li>364 clicks in 40 days = ~9/day for a marketing agency — critically low lead pipeline</li>
+      <li>8,820+ internal sessions inflating GA4 — real external traffic is ~8,389 sessions</li>
+      <li>Conversion tracking not tied to actual leads — 322 "conversions" likely aren't contact forms</li>
+      <li>"digital marketing for plumbers" — 2,733 impressions, 3 clicks (0.11%) — competitor ads dominating above</li>
+      <li>No GSC data for key LSA management terms confirming they drive zero organic leads</li>
+      <li>Mobile engagement 37.8% — B2B prospects on mobile not converting</li>
+    </ul>
+  </div>
+  <div class="analysis-box rec-box">
+    <h3>📋 Recommendations</h3>
+    <ul>
+      <li><strong>Fix conversion tracking immediately</strong> — configure GA4 to fire on actual form submissions (not page views). You need to know true lead count.</li>
+      <li><strong>Exclude internal traffic from GA4</strong> — add IP filters for dashboard.realtimemarketing.com, admin, and client referrals. Segment a clean "external visitor" view.</li>
+      <li><strong>Run Google Ads on your top organic keywords</strong> — LSA management for plumbers, digital marketing for HVAC. Compete above AI Overviews in paid positions 1–4.</li>
+      <li><strong>Add structured FAQ schema</strong> to service pages to compete with AI Overviews ("What is LSA management for plumbers?"). Structured data can get you cited inside AI answers.</li>
+      <li><strong>Create an "AI Overview optimization" content layer</strong> — concise, direct answers at the top of each service page. Google often pulls these into Overviews.</li>
+      <li><strong>Strengthen CTAs on /services/google-guaranteed-local-services-ads/</strong> — 8,100 GSC impressions, only 10 clicks, 0.12% CTR. The page needs stronger title tag and meta description to compete.</li>
+      <li><strong>Add a lead magnet</strong> (free LSA audit, ROI calculator) to convert research traffic that AI Overviews send back to organic listings.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- AI OVERVIEW SECTION -->
+<div class="ai-box">
+  <h3>🤖 AI Overviews & Competitor Ad Impact — Why Rankings ≠ Clicks</h3>
+  <p style="font-size:12px;color:#ccccdd;line-height:1.6">For search queries like <strong>"LSA management for plumbers"</strong>, <strong>"digital marketing for HVAC"</strong>, and <strong>"local service ads agency"</strong>, Google now shows a full AI Overview summary at the top of the page — answering the question before any organic listing is visible. This is why 275,000 impressions are generating only 364 clicks (0.13% CTR). Google serves RTM pages to searchers, then answers their question itself.</p>
+  <div class="ai-row">
+    <div class="ai-cell">
+      <h4>🔮 AI Overview Effect</h4>
+      <p>For informational queries ("what is LSA management", "how does digital marketing for plumbers work"), AI Overviews generate a complete answer. Users get what they need without clicking. RTM gets the impression, zero clicks. This is the primary driver of the 275K impressions / 364 clicks gap.</p>
+    </div>
+    <div class="ai-cell">
+      <h4>💰 Competitor Paid Ads</h4>
+      <p>Agencies like <strong>Scorpion, Lendio, Cardinal Digital Marketing, and Hook Agency</strong> are actively bidding on "LSA management for plumbers", "home service digital marketing", and "digital marketing for HVAC." Their ads appear in positions 1–4, above all organic results, capturing high-intent buyers before they scroll to RTM's #2 organic position.</p>
+    </div>
+    <div class="ai-cell">
+      <h4>📍 Geo-Ranking Discrepancy</h4>
+      <p>Tampa FL IP shows RTM ranking #2 for several terms, but GSC national averages show position 14–25 for the same keywords. This is expected — local presence, GBP proximity, and IP signals boost local rankings. But most prospects searching nationally see RTM on page 2, not page 1. The fix: content targeting each major metro.</p>
+    </div>
+  </div>
+</div>
+
+<!-- GEO + LANDING PAGES -->
+<div class="geo-grid">
+  <div class="sec" style="margin-bottom:0">
+    <div class="sec-title"><span class="dot o"></span>Geographic Traffic — GA4 Sessions (Top Countries)</div>
+    <canvas id="geoChart" style="max-height:200px"></canvas>
+    <div class="geo-warn">
+      <strong>⚠ Internal Staff Traffic Detected:</strong> Philippines shows 2,789 sessions from only 345 unique users (avg 8.1 sessions/user) with 74.7% engagement — this is almost certainly RTM staff logging into the client dashboard daily. Singapore (702 sessions, 5.1% engagement) and China (240 sessions, 14.6% engagement) indicate bot/crawler traffic. Combined, these 3 countries add ~3,731 non-prospect sessions that inflate all GA4 metrics.
+    </div>
+  </div>
+  <div class="sec" style="margin-bottom:0">
+    <div class="sec-title"><span class="dot r"></span>Country Detail — Sessions vs Unique Users</div>
+    <table class="tbl" id="geo-tbody-tbl">
+      <thead><tr><th>Country</th><th>Sessions</th><th>Unique Users</th><th>Sess/User</th><th>Eng Rate</th><th>Signal</th></tr></thead>
+      <tbody id="geo-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- LANDING PAGE PERFORMANCE -->
+<div class="sec">
+  <div class="sec-title"><span class="dot p"></span>Landing Page Performance — Sessions, Engagement & "Conversions"</div>
+  <table class="tbl">
+    <thead><tr><th>Landing Page</th><th>Sessions</th><th>Unique Users</th><th>Eng Rate</th><th>Tracked Convs</th><th>Conv Rate</th><th>Page Type</th><th>Conversion Verdict</th></tr></thead>
+    <tbody id="lp-tbody"></tbody>
+  </table>
+  <div class="internal-warn" style="margin-top:12px">
+    <strong>💡 Why are service page conversion rates 15–52%?</strong> For a B2B marketing agency, real contact form submissions would convert at 2–5% at best. Rates of 15–52% mean GA4 is tracking <em>micro-events</em> — most likely CTA button clicks, scroll past 50%, or chat widget opens — not actual submitted leads. The only way to know your true lead count is to configure GA4 to fire only on confirmed form submission (the "thank you" page view or a form_submit event).
+  </div>
+</div>
+
+<!-- CONVERSION TRACKING AUDIT -->
+<div class="audit-panel">
+  <h3>🔬 Conversion Tracking Audit — What GA4 Is Measuring vs What It Should Be</h3>
+  <div class="audit-row">
+    <div class="audit-cell">
+      <h4>❌ What GA4 Is Likely Tracking (Current)</h4>
+      <ul>
+        <li>Clicks on "Get a Free Quote" or "Book a Call" CTA buttons (not form completions)</li>
+        <li>Scroll depth events (user scrolled to 50% or 75% of page)</li>
+        <li>Chat widget opens or chat session starts via embedded Unify360 widget</li>
+        <li>Page views of /contact/ treated as conversion (viewing ≠ submitting)</li>
+        <li>Time-on-page thresholds (30+ seconds = "engaged user" fired as conversion)</li>
+        <li>Dashboard login events from existing clients counted as conversions</li>
+      </ul>
+    </div>
+    <div class="audit-cell">
+      <h4>✅ What GA4 Should Be Tracking (Real Leads)</h4>
+      <ul>
+        <li>Confirmed contact form submission — fire on /thank-you/ page view OR form_submit event</li>
+        <li>Inbound phone call tracked via CallRail or Google Ads call extension with GA4 import</li>
+        <li>Calendly / booking confirmation page view after a demo is actually scheduled</li>
+        <li>Newsletter opt-in form completed (distinct from marketing lead)</li>
+        <li>Chat conversation qualified as lead (via Unify360 CRM tag, imported to GA4)</li>
+        <li>Paid search conversions imported from Google Ads (not estimated)</li>
+      </ul>
+    </div>
+  </div>
+  <div style="font-size:11px;color:#8888aa;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px">Fix It in 4 Steps</div>
+  <div class="audit-steps">
+    <div class="audit-step">
+      <span class="step-num">1</span>
+      <p>Create a /thank-you/ redirect page for the contact form and track its pageview as the GA4 conversion event</p>
+    </div>
+    <div class="audit-step">
+      <span class="step-num">2</span>
+      <p>Remove scroll depth and button click events from the Conversions list in GA4 Admin → Events</p>
+    </div>
+    <div class="audit-step">
+      <span class="step-num">3</span>
+      <p>Connect CallRail (or Google Ads call tracking) to GA4 to import real phone lead conversions</p>
+    </div>
+    <div class="audit-step">
+      <span class="step-num">4</span>
+      <p>Add GA4 internal traffic filter for Philippines IPs and dashboard.realtimemarketing.com referral</p>
+    </div>
+  </div>
+</div>
+
+<!-- CLICK OPPORTUNITY ESTIMATOR -->
+<div class="opp-panel">
+  <h3>📈 Click Opportunity Estimator — What Better Rankings Mean in Real Traffic</h3>
+  <p style="font-size:12px;color:#374151;margin-bottom:14px;line-height:1.6">Based on industry-standard CTR benchmarks by SERP position, here's what moving key terms from their current GSC average position to page 1 would mean for monthly organic clicks. AI Overviews reduce position 1–3 CTR by an estimated 30% — those reduced rates are applied below.</p>
+  <table class="tbl" id="opp-table">
+    <thead><tr>
+      <th>Keyword</th><th>Monthly Search Vol (est.)</th><th>Current Pos</th><th>Current CTR</th><th>Current Clicks/mo</th>
+      <th>Target Pos</th><th>Target CTR (AI adj.)</th><th class="gain-up">Projected Clicks/mo</th><th class="gain-up">Monthly Gain</th>
+    </tr></thead>
+    <tbody id="opp-tbody"></tbody>
+  </table>
+  <div class="opp-note">
+    <strong style="color:#00d46a">Total estimated monthly click gain if all 5 terms reach target position: ~750–900 additional clicks/month</strong> — at a realistic 2% lead conversion rate, that's <strong style="color:#a855f7">15–18 qualified new leads per month</strong> from organic search alone. This is the case for investing in both SEO (page authority, content) and Google Ads to compete in the positions above organic results.
+  </div>
+</div>
+
+<!-- META ADS SECTION -->
+<div class="sec" style="margin-bottom:var(--gap)">
+  <div class="sec-title"><span class="dot" style="background:#1877f2"></span>Meta — Real Time Marketing · Ads &amp; Page Posts &nbsp;<span style="font-size:10px;background:rgba(24,119,242,0.1);color:#1877f2;border:1px solid rgba(24,119,242,0.3);border-radius:12px;padding:2px 10px;font-weight:700">Mar 3 – Apr 12, 2026 · 40 Days</span></div>
+
+  <!-- Ad KPI Row -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gap);margin-bottom:16px">
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center;border-top:2px solid #1877f2">
+      <div style="font-size:22px;font-weight:800;color:#1877f2">$1,336.78</div>
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Ad Spend</div>
+    </div>
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center;border-top:2px solid #16a34a">
+      <div style="font-size:22px;font-weight:800;color:#16a34a">13</div>
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Leads</div>
+    </div>
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center;border-top:2px solid #f59e0b">
+      <div style="font-size:22px;font-weight:800;color:#f59e0b">$102.83</div>
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Avg CPL</div>
+    </div>
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center;border-top:2px solid #7c3aed">
+      <div style="font-size:22px;font-weight:800;color:#7c3aed">11,518</div>
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Impressions</div>
+    </div>
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center;border-top:2px solid #0891b2">
+      <div style="font-size:22px;font-weight:800;color:#0891b2">16</div>
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Posts (40 days)</div>
+    </div>
+  </div>
+
+  <!-- Campaigns + chart -->
+  <div style="display:grid;grid-template-columns:200px 1fr;gap:var(--gap);margin-bottom:16px;align-items:start">
+    <div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;margin-bottom:10px">Spend by Campaign</div>
+      <canvas id="metaCampaignChart" style="max-height:140px"></canvas>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;margin-bottom:8px">Active Campaigns</div>
+      <table class="tbl">
+        <thead><tr><th>Campaign</th><th>Spend</th><th>Impr.</th><th>Clicks</th><th>CTR</th><th>Leads</th><th>CPL</th><th>Signal</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:#111827">SEO &amp; AI Search Campaign - RTM</td>
+            <td style="font-weight:700">$715.55</td>
+            <td style="color:#6b7280">6,531</td>
+            <td style="color:#6b7280">223</td>
+            <td style="color:#6b7280">3.41%</td>
+            <td style="font-weight:700;color:#16a34a">8</td>
+            <td style="color:#16a34a;font-weight:700">$89.44</td>
+            <td><span style="background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.3);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">✅ Best</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:#111827">Paid Ads Campaign - RTM</td>
+            <td style="font-weight:700">$621.23</td>
+            <td style="color:#6b7280">4,987</td>
+            <td style="color:#6b7280">150</td>
+            <td style="color:#6b7280">3.01%</td>
+            <td style="font-weight:700;color:#16a34a">5</td>
+            <td style="color:#f59e0b">$124.25</td>
+            <td><span style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">⚠ Optimize</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="background:rgba(22,163,74,0.05);border:1px solid rgba(22,163,74,0.2);border-left:3px solid #16a34a;border-radius:6px;padding:9px 13px;margin-top:8px;font-size:11px;color:#374151">
+        <strong style="color:#16a34a">Recommendation:</strong> Shift 20–30% of Paid Ads budget to the SEO &amp; AI Search campaign — it delivers 28% lower CPL ($89 vs $124) with 60% more leads. Combined CTR of 3.2% is 3× above Meta's ~1% benchmark.
+      </div>
+    </div>
+  </div>
+
+  <!-- Lead Breakdown -->
+  <div style="margin-bottom:16px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#1877f2;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid rgba(24,119,242,0.2)">Lead Breakdown — 13 Total Leads (Pixel-Tracked · No Native Form)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)">
+      <!-- Paid Ads Campaign leads -->
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px">Paid Ads Campaign — 5 Leads</div>
+        <table class="tbl">
+          <thead><tr><th>Lead Type</th><th>Count</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="font-size:11px">Website Pixel Fire (form submit)</td>
+              <td style="font-weight:700;color:#16a34a">2</td>
+              <td><span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">✅ Valid</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:11px">Meta Grouped Leads (registration)</td>
+              <td style="font-weight:700;color:#16a34a">3</td>
+              <td><span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">✅ Valid</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:11px">Messenger Connection (messaging)</td>
+              <td style="font-weight:700;color:#f59e0b">2</td>
+              <td><span style="background:rgba(245,158,11,0.1);color:#f59e0b;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">⚠ Verify</span></td>
+            </tr>
+            <tr style="background:rgba(22,163,74,0.03)">
+              <td style="font-size:11px;font-weight:700">Total · CPL</td>
+              <td style="font-weight:800;color:#16a34a">5</td>
+              <td style="font-weight:700;color:#f59e0b">$126.84</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:10px;color:#6b7280;margin-top:6px;line-height:1.5">Website pixel fires on form-submit confirmation page = highest-intent. Messenger connections need manual review — some may be sales inquiries, some spam.</div>
+      </div>
+      <!-- SEO Campaign leads -->
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px">SEO &amp; AI Search Campaign — 8 Leads</div>
+        <table class="tbl">
+          <thead><tr><th>Lead Type</th><th>Count</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="font-size:11px">Website Pixel Fire (form submit)</td>
+              <td style="font-weight:700;color:#16a34a">4</td>
+              <td><span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">✅ Valid</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:11px">Meta Grouped Leads (registration)</td>
+              <td style="font-weight:700;color:#16a34a">4</td>
+              <td><span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">✅ Valid</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:11px">Messenger Connection (messaging)</td>
+              <td style="font-weight:700;color:#f59e0b">3</td>
+              <td><span style="background:rgba(245,158,11,0.1);color:#f59e0b;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">⚠ Verify</span></td>
+            </tr>
+            <tr style="background:rgba(22,163,74,0.03)">
+              <td style="font-size:11px;font-weight:700">Total · CPL</td>
+              <td style="font-weight:800;color:#16a34a">8</td>
+              <td style="font-weight:700;color:#16a34a">$90.54</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:10px;color:#6b7280;margin-top:6px;line-height:1.5">Higher pixel fire rate (4 vs 2) confirms better landing page conversion. Individual lead details (name, email, phone) are in your CRM — Meta Pixel does not store personal data.</div>
+      </div>
+    </div>
+    <div style="background:rgba(37,99,235,0.04);border:1px solid rgba(37,99,235,0.15);border-left:3px solid #2563eb;border-radius:6px;padding:10px 14px;margin-top:10px;font-size:11px;color:#374151;line-height:1.6">
+      <strong style="color:#2563eb">Lead Summary:</strong> Of 13 tracked leads, <strong>~11 are likely valid</strong> (pixel form fires + Meta registration completions) and <strong>~5 Messenger connections need manual verification</strong> — cross-reference with your CRM or contact log. These campaigns use website landing page conversion tracking, not native Meta lead forms, so individual lead data lives in your website CRM, not Meta.
+    </div>
+  </div>
+
+  <!-- Page Posts -->
+  <div style="margin-bottom:14px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#1877f2;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid rgba(24,119,242,0.2)">Facebook Page Posts — Last 40 Days (16 posts · all with images)</div>
+    <table class="tbl">
+      <thead><tr><th>Date</th><th>Post Content</th><th>Topic</th></tr></thead>
+      <tbody>
+        <tr><td>Apr 10</td><td style="font-size:11px;color:#374151">Real Time Marketing is proud to partner with Hatch. AI CSRs operating across voice, SMS, and email to convert leads into revenue.</td><td><span style="background:rgba(124,58,237,0.08);color:#7c3aed;border-radius:4px;padding:2px 7px;font-size:10px">Partnership</span></td></tr>
+        <tr><td>Apr 8</td><td style="font-size:11px;color:#374151">Climb to the top of search results with our SEO expertise and watch your traffic grow!</td><td><span style="background:rgba(8,145,178,0.08);color:#0891b2;border-radius:4px;padding:2px 7px;font-size:10px">SEO</span></td></tr>
+        <tr><td>Apr 6</td><td style="font-size:11px;color:#374151">Boost your home service business with Real Time Marketing's expert digital solutions and strategic partnerships.</td><td><span style="background:rgba(37,99,235,0.08);color:#2563eb;border-radius:4px;padding:2px 7px;font-size:10px">Brand</span></td></tr>
+        <tr><td>Apr 3</td><td style="font-size:11px;color:#374151">Elevate your brand and capture attention with Real Time Marketing's expert design services.</td><td><span style="background:rgba(37,99,235,0.08);color:#2563eb;border-radius:4px;padding:2px 7px;font-size:10px">Brand</span></td></tr>
+        <tr><td>Apr 2</td><td style="font-size:11px;color:#374151">Get guaranteed phone calls from quality leads with Google Local Service Ads and only pay for real results.</td><td><span style="background:rgba(22,163,74,0.08);color:#16a34a;border-radius:4px;padding:2px 7px;font-size:10px">LSA</span></td></tr>
+        <tr><td>Mar 30</td><td style="font-size:11px;color:#374151">Make your business the local favorite with a Google Business Profile that shows your hours, reviews, and services.</td><td><span style="background:rgba(22,163,74,0.08);color:#16a34a;border-radius:4px;padding:2px 7px;font-size:10px">GBP</span></td></tr>
+        <tr><td>Mar 25</td><td style="font-size:11px;color:#374151">Get found online and outrank your competitors with Real Time Marketing's expert SEO solutions.</td><td><span style="background:rgba(8,145,178,0.08);color:#0891b2;border-radius:4px;padding:2px 7px;font-size:10px">SEO</span></td></tr>
+        <tr><td>Mar 23</td><td style="font-size:11px;color:#374151">Ten loyal customers are worth more than a thousand browsers — Real Time Marketing builds real relationships.</td><td><span style="background:rgba(37,99,235,0.08);color:#2563eb;border-radius:4px;padding:2px 7px;font-size:10px">Brand</span></td></tr>
+        <tr><td>Mar 20</td><td style="font-size:11px;color:#374151">Drop your guesses in the comments and let's start a debate! Interactive engagement post on high-impact marketing.</td><td><span style="background:rgba(245,158,11,0.08);color:#f59e0b;border-radius:4px;padding:2px 7px;font-size:10px">Engagement</span></td></tr>
+        <tr><td>Mar 18</td><td style="font-size:11px;color:#374151">Stop wasting your budget on digital strategies that don't convert — let us handle web design and more.</td><td><span style="background:rgba(220,38,38,0.08);color:#dc2626;border-radius:4px;padding:2px 7px;font-size:10px">Pain Point</span></td></tr>
+        <tr><td>Mar 16</td><td style="font-size:11px;color:#374151">We want to hear your top priorities — interactive poll/comment post about marketing goals.</td><td><span style="background:rgba(245,158,11,0.08);color:#f59e0b;border-radius:4px;padding:2px 7px;font-size:10px">Engagement</span></td></tr>
+        <tr><td>Mar 13</td><td style="font-size:11px;color:#374151">Did You Know? Your next sale might already be sitting on your email list. Email marketing converts 40× better than social.</td><td><span style="background:rgba(124,58,237,0.08);color:#7c3aed;border-radius:4px;padding:2px 7px;font-size:10px">Education</span></td></tr>
+        <tr><td>Mar 11</td><td style="font-size:11px;color:#374151">Missed the First Click? Retargeting Brings Them Back to Book — retargeting is one of the most effective strategies.</td><td><span style="background:rgba(124,58,237,0.08);color:#7c3aed;border-radius:4px;padding:2px 7px;font-size:10px">Education</span></td></tr>
+        <tr><td>Mar 10</td><td style="font-size:11px;color:#374151">Stop Hoping for Viral. Start Building Real Results. The most common misconception about digital marketing.</td><td><span style="background:rgba(220,38,38,0.08);color:#dc2626;border-radius:4px;padding:2px 7px;font-size:10px">Pain Point</span></td></tr>
+        <tr><td>Mar 6</td><td style="font-size:11px;color:#374151">Credibility Starts With Visibility — over half of local searches lead to a store visit or in-person contact.</td><td><span style="background:rgba(124,58,237,0.08);color:#7c3aed;border-radius:4px;padding:2px 7px;font-size:10px">Education</span></td></tr>
+        <tr><td>Mar 4</td><td style="font-size:11px;color:#374151">Did You Know? Businesses that use call tracking can see exactly which ads, keywords, and sources drive calls.</td><td><span style="background:rgba(124,58,237,0.08);color:#7c3aed;border-radius:4px;padding:2px 7px;font-size:10px">Education</span></td></tr>
+      </tbody>
+    </table>
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-top:8px;font-size:11px;color:#6b7280;line-height:1.6">
+      <strong style="color:#374151">Post Cadence:</strong> 16 posts in 40 days (~3 per week) — consistent. Content mix: 5 Educational, 4 Brand/Awareness, 3 Pain Point, 2 Engagement, 1 LSA, 1 Partnership. &nbsp;|&nbsp; <strong style="color:#374151">Note:</strong> Post engagement metrics (reach, impressions, reactions) require Meta Business Suite API access — viewable in <a href="https://business.facebook.com" style="color:#1877f2">business.facebook.com</a> under Insights.
+    </div>
+  </div>
+</div>
+
+<!-- MARCH 2026 CALL SUMMARY -->
+<div class="sec" style="margin-bottom:var(--gap)">
+  <div class="sec-title"><span class="dot p"></span>Realtimemarketing.com — CallRail Call Summary: March 2026</div>
+
+  <!-- Stats bar -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gap);margin-bottom:16px">
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:#2563eb">60</div>
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Total Calls</div>
+    </div>
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:#16a34a">58</div>
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Answered</div>
+    </div>
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:#16a34a">43</div>
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">New Callers</div>
+    </div>
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:#7c3aed">3–5</div>
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Real New Leads</div>
+    </div>
+    <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:#dc2626">65%</div>
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Spam / Noise</div>
+    </div>
+  </div>
+
+  <!-- Valid Leads -->
+  <div style="margin-bottom:14px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#16a34a;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid rgba(22,163,74,0.2)">✅ Valid Leads — New Business Inquiries</div>
+    <table class="tbl">
+      <thead><tr>
+        <th>#</th><th>Date</th><th>Caller</th><th>Location</th><th>Source</th><th>Duration</th><th>Summary</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td style="color:#6b7280">22</td>
+          <td>Mar 16</td>
+          <td style="font-weight:700;color:#111827">Eli Iluz<br><span style="font-weight:400;font-size:10px;color:#6b7280">Lion Home Services</span></td>
+          <td style="color:#6b7280">Portsmouth, VA</td>
+          <td><span style="background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.3);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">Google Organic</span></td>
+          <td>1m 57s</td>
+          <td style="font-size:11px;color:#374151">Asking about PPC + SEO pricing. Previously worked with an RTM rep. Follow-up scheduled. <span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:3px;padding:1px 5px;font-size:10px">NEW</span></td>
+        </tr>
+        <tr style="background:rgba(22,163,74,0.03)">
+          <td style="color:#6b7280">37</td>
+          <td>Mar 25</td>
+          <td style="font-weight:700;color:#111827">Dreyson Righteous</td>
+          <td style="color:#6b7280">Atlanta, GA</td>
+          <td><span style="background:rgba(8,145,178,0.1);color:#0891b2;border:1px solid rgba(8,145,178,0.3);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">Google My Business</span></td>
+          <td style="font-weight:700;color:#16a34a">38m 47s 🔥</td>
+          <td style="font-size:11px;color:#374151">Longest call of the month. Wants digital marketing (social, SEO, Google Ads) to expand into Florida. Has existing website with 25k monthly traffic. Asked about pricing and package options. <strong>Hot prospect — confirm if proposal was sent.</strong> <span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:3px;padding:1px 5px;font-size:10px">NEW</span></td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">45</td>
+          <td>Mar 27</td>
+          <td style="font-weight:700;color:#111827">Wayne Leiser</td>
+          <td style="color:#6b7280">Sarasota, FL</td>
+          <td><span style="background:rgba(8,145,178,0.1);color:#0891b2;border:1px solid rgba(8,145,178,0.3);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">Google My Business</span></td>
+          <td>10m 01s</td>
+          <td style="font-size:11px;color:#374151">IT services business in eastern Florida. Wants marketing for his established website. Dispatch offered consultation — caller preferred Tuesday. Follow-up call confirmed Wednesday 12:30 PM slot. <span style="background:rgba(37,99,235,0.1);color:#2563eb;border-radius:3px;padding:1px 5px;font-size:10px">BOOKED</span> <span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:3px;padding:1px 5px;font-size:10px">NEW</span></td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">48</td>
+          <td>Mar 27</td>
+          <td style="font-weight:700;color:#111827">Wayne Leiser <span style="font-weight:400;font-size:10px;color:#6b7280">(callback)</span></td>
+          <td style="color:#6b7280">Sarasota, FL</td>
+          <td><span style="background:rgba(8,145,178,0.1);color:#0891b2;border:1px solid rgba(8,145,178,0.3);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">Google My Business</span></td>
+          <td>2m 50s</td>
+          <td style="font-size:11px;color:#374151">Called back to confirm appointment. Locked in Wednesday 12:30 PM. ✓ Resolved.</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">32</td>
+          <td>Mar 23</td>
+          <td style="font-weight:700;color:#111827">Tite Mold</td>
+          <td style="color:#6b7280">Bethlehem, PA</td>
+          <td><span style="background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.3);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">Google Organic</span></td>
+          <td style="color:#dc2626">0m 44s</td>
+          <td style="font-size:11px;color:#374151">Asked about Google Service Ads. Hung up before dispatch could assist. <span style="background:rgba(220,38,38,0.1);color:#dc2626;border-radius:3px;padding:1px 5px;font-size:10px">MISSED OPP</span> <span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:3px;padding:1px 5px;font-size:10px">NEW</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Existing Clients -->
+  <div style="margin-bottom:14px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#2563eb;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid rgba(37,99,235,0.2)">🔄 Existing Client Calls</div>
+    <table class="tbl">
+      <thead><tr>
+        <th>#</th><th>Date</th><th>Caller / Company</th><th>Source</th><th>Duration</th><th>Summary</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td style="color:#6b7280">09</td><td>Mar 4</td>
+          <td style="font-weight:700;color:#111827">Kathy Marshall<br><span style="font-weight:400;font-size:10px;color:#6b7280">CI Web Group</span></td>
+          <td>Direct</td><td>1m 30s</td>
+          <td style="font-size:11px;color:#374151">Voicemail requesting callback re: Gold Star Plumbing follow-up.</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">15</td><td>Mar 9</td>
+          <td style="font-weight:700;color:#111827">Kathy Marshall<br><span style="font-weight:400;font-size:10px;color:#6b7280">CI Web Group</span></td>
+          <td>Direct</td><td>2m 27s</td>
+          <td style="font-size:11px;color:#374151">Called back about Gold Star Plumbing &amp; Drain. Wants to know how RTM can help. Dispatch to forward to Sherilyn.</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">17</td><td>Mar 11</td>
+          <td style="font-weight:700;color:#111827">Vinson Construction</td>
+          <td>Direct</td><td>1m 40s</td>
+          <td style="font-size:11px;color:#374151">Wants to pay their annual fee. Forwarded to team. Email provided. ✓</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">19</td><td>Mar 12</td>
+          <td style="font-weight:700;color:#111827">Austin Sanchez<br><span style="font-weight:400;font-size:10px;color:#6b7280">Drain Medics PL</span></td>
+          <td>Google My Business</td><td>1m 18s</td>
+          <td style="font-size:11px;color:#374151">Billing inquiry on existing account. Message forwarded. Email provided. ✓</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">34</td><td>Mar 24</td>
+          <td style="font-weight:700;color:#111827">Ray Poe (for Olguin Rolando)</td>
+          <td>Direct</td><td>1m 35s</td>
+          <td style="font-size:11px;color:#374151">Calling about Rheem water heater warranty. Dispatch forwarded to correct department. Email provided. ✓</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">41</td><td>Mar 26</td>
+          <td style="font-weight:700;color:#111827">Cheryl<br><span style="font-weight:400;font-size:10px;color:#6b7280">The Plumbing Doc</span></td>
+          <td>Direct</td><td>1m 48s</td>
+          <td style="font-size:11px;color:#374151">Trying to reach Kelly Ruffle. Left voicemail, requested callback at 661-836-1620.</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">43</td><td>Mar 26</td>
+          <td style="font-weight:700;color:#111827">Cheryl<br><span style="font-weight:400;font-size:10px;color:#6b7280">The Plumbing Doc</span></td>
+          <td>Direct</td><td>2m 36s</td>
+          <td style="font-size:11px;color:#374151">Called again. Connected to Victoria who reached Kelly. Callback confirmed. ✓ Resolved.</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">60</td><td>Mar 31</td>
+          <td style="font-weight:700;color:#111827">Vinson Kelly<br><span style="font-weight:400;font-size:10px;color:#6b7280">Vinson Construction</span></td>
+          <td>Direct</td><td>1m 43s</td>
+          <td style="font-size:11px;color:#374151">Wants to pay an invoice. Message passed to team. <span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:3px;padding:1px 5px;font-size:10px">NEW</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Vendor / Solicitations -->
+  <div style="margin-bottom:14px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#7c3aed;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid rgba(124,58,237,0.2)">📣 Vendor / Solicitation Calls (Non-Prospects Calling RTM)</div>
+    <table class="tbl">
+      <thead><tr>
+        <th>#</th><th>Date</th><th>Caller</th><th>Duration</th><th>Summary</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td style="color:#6b7280">01</td><td>Mar 2</td>
+          <td style="font-weight:700;color:#111827">Twice as Nice (recruiting firm)</td>
+          <td>2m 37s</td>
+          <td style="font-size:11px;color:#374151">Looking for "Rick Clark" to discuss hiring for permanent positions. Dispatch couldn't help.</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">02</td><td>Mar 2</td>
+          <td style="font-weight:700;color:#111827">Today's Exteriors</td>
+          <td>3m 48s</td>
+          <td style="font-size:11px;color:#374151">Wanted website login/password. Dispatch declined per IT security protocol — referred to IT team.</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">29</td><td>Mar 19</td>
+          <td style="font-weight:700;color:#111827">Jermaine — iSupport Worldwide</td>
+          <td>1m 27s</td>
+          <td style="font-size:11px;color:#374151">Offshore/remote staffing pitch (Philippines). Asked to speak with Paul. Info noted. <span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:3px;padding:1px 5px;font-size:10px">NEW</span></td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">31</td><td>Mar 23</td>
+          <td style="font-weight:700;color:#111827">Critical Point Investment Bank</td>
+          <td>1m 56s</td>
+          <td style="font-size:11px;color:#374151">Investment opportunity pitch. Wanted to speak with Carl and Joanna. Message relayed. <span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:3px;padding:1px 5px;font-size:10px">NEW</span></td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">50</td><td>Mar 27</td>
+          <td style="font-weight:700;color:#111827">Rebecca (Nashville, TN)</td>
+          <td>3m 22s</td>
+          <td style="font-size:11px;color:#374151">Employment background verification for Makia Franklin. Dispatch declined to provide info. <span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:3px;padding:1px 5px;font-size:10px">NEW</span></td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">56</td><td>Mar 30</td>
+          <td style="font-weight:700;color:#111827">John (Irvine, CA)</td>
+          <td>2m 24s</td>
+          <td style="font-size:11px;color:#374151">Employment verification. Directed to email HR. <span style="background:rgba(22,163,74,0.1);color:#16a34a;border-radius:3px;padding:1px 5px;font-size:10px">NEW</span></td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280">59</td><td>Mar 31</td>
+          <td style="font-weight:700;color:#111827">John (Irvine, CA)</td>
+          <td>2m 26s</td>
+          <td style="font-size:11px;color:#374151">Same employment verification follow-up. Dispatch took note for team.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Spam/Disconnected summary -->
+  <div style="margin-bottom:14px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#dc2626;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid rgba(220,38,38,0.2)">🚫 Spam / Disconnected / No Response — 39 calls</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:11px">
+      <div style="background:rgba(220,38,38,0.04);border:1px solid rgba(220,38,38,0.15);border-radius:6px;padding:10px 12px">
+        <div style="font-weight:700;color:#dc2626;margin-bottom:4px">Direct (15+ calls)</div>
+        <div style="color:#6b7280">Automated hang-ups, no-response after answer, outside-hours drops. Repeat patterns from same caller IDs.</div>
+      </div>
+      <div style="background:rgba(220,38,38,0.04);border:1px solid rgba(220,38,38,0.15);border-radius:6px;padding:10px 12px">
+        <div style="font-weight:700;color:#dc2626;margin-bottom:4px">Google My Business (7 calls)</div>
+        <div style="color:#6b7280">Englewood FL, Bradenton FL, Palmetto FL, Venice FL area — repeat disconnects, likely robocall numbers.</div>
+      </div>
+      <div style="background:rgba(220,38,38,0.04);border:1px solid rgba(220,38,38,0.15);border-radius:6px;padding:10px 12px">
+        <div style="font-weight:700;color:#dc2626;margin-bottom:4px">Yelp (4 calls) · Facebook (2 calls)</div>
+        <div style="color:#6b7280">All 4 Yelp calls disconnected. Both Facebook calls in March disconnected — 0% connect rate for Facebook this month.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key observations -->
+  <div style="background:rgba(37,99,235,0.04);border:1px solid rgba(37,99,235,0.15);border-left:3px solid #2563eb;border-radius:8px;padding:14px 16px;font-size:12px;line-height:1.7">
+    <strong style="color:#2563eb;display:block;margin-bottom:6px">📊 March 2026 — Key Observations</strong>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;color:#374151">
+      <div>🔥 <strong>Dreyson Righteous (38 min)</strong> — Hottest prospect of the month. Had a full consultation. Verify if proposal was sent.</div>
+      <div>📅 <strong>Wayne Leiser</strong> — IT services prospect booked Wednesday 12:30 PM. Confirm appointment was honored.</div>
+      <div>⚠️ <strong>Tite Mold</strong> asked about Google Service Ads and hung up — dispatch wasn't fast enough. Missed opportunity.</div>
+      <div>🔁 <strong>CI Web Group (Kathy Marshall)</strong> called twice about Gold Star Plumbing — active account needing attention.</div>
+      <div>📞 <strong>65% of calls are noise</strong> — spam, disconnects, or unsolicited vendors. IVR filtering could save dispatch time.</div>
+      <div>📘 <strong>Facebook: 0% connect rate</strong> in March (2 calls, both disconnected). Reconfirms call campaign quality issue.</div>
+    </div>
+  </div>
+</div>
+
+<!-- GBP SECTION -->
+<div class="sec">
+  <div class="sec-title"><span class="dot g"></span>Google Business Profile — Realtimemarketing.com</div>
+
+  <!-- KPI row -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gap);margin-bottom:18px">
+    <div class="kpi g" style="border-top:2px solid var(--green)">
+      <div class="kpi-lbl">2026 Insights</div>
+      <div class="kpi-val" style="font-size:22px">1,113</div>
+      <div class="kpi-sub">Jan – Mar 2026</div>
+      <div class="kpi-delta delta-good">▼ vs 1,214 same period 2025</div>
+    </div>
+    <div class="kpi b" style="border-top:2px solid var(--blue)">
+      <div class="kpi-lbl">Website Clicks</div>
+      <div class="kpi-val" style="font-size:22px">75</div>
+      <div class="kpi-sub">Jan – Mar 2026</div>
+      <div class="kpi-delta delta-good">vs 96 Jan–Mar 2025</div>
+    </div>
+    <div class="kpi o" style="border-top:2px solid var(--orange)">
+      <div class="kpi-lbl">Directions</div>
+      <div class="kpi-val" style="font-size:22px">152</div>
+      <div class="kpi-sub">Jan – Mar 2026</div>
+      <div class="kpi-delta delta-good">vs 93 Jan–Mar 2025</div>
+    </div>
+    <div class="kpi p" style="border-top:2px solid var(--purple)">
+      <div class="kpi-lbl">Call Clicks</div>
+      <div class="kpi-val" style="font-size:22px">5</div>
+      <div class="kpi-sub">Jan – Mar 2026</div>
+      <div class="kpi-delta delta-warn">vs 4 Jan–Mar 2025</div>
+    </div>
+    <div class="kpi y" style="border-top:2px solid var(--yellow)">
+      <div class="kpi-lbl">Chat / Bookings</div>
+      <div class="kpi-val" style="font-size:22px">4</div>
+      <div class="kpi-sub">Jan – Mar 2026</div>
+      <div class="kpi-delta delta-warn">vs 0 Jan–Mar 2025</div>
+    </div>
+  </div>
+
+  <!-- Two-column: chart + table -->
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:var(--gap);align-items:start">
+    <!-- Doughnut -->
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px">Mar 2026 Breakdown</div>
+      <canvas id="gbpChart" height="200"></canvas>
+      <div style="margin-top:10px;font-size:10px;color:var(--muted);line-height:1.8">
+        <span style="color:var(--green)">■</span> Insights: 375 &nbsp;
+        <span style="color:var(--blue)">■</span> Website: 16<br>
+        <span style="color:var(--orange)">■</span> Directions: 48 &nbsp;
+        <span style="color:var(--purple)">■</span> Calls: 3
+      </div>
+    </div>
+
+    <!-- Monthly table -->
+    <div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:var(--card2)">
+            <th style="padding:8px 10px;text-align:left;border:1px solid var(--border);font-weight:700;color:var(--muted)">Month</th>
+            <th style="padding:8px 10px;text-align:center;border:1px solid var(--border);font-weight:700;color:var(--muted)">Insights</th>
+            <th style="padding:8px 10px;text-align:center;border:1px solid var(--border);font-weight:700;color:var(--muted)">Calls</th>
+            <th style="padding:8px 10px;text-align:center;border:1px solid var(--border);font-weight:700;color:var(--muted)">Chat/Book</th>
+            <th style="padding:8px 10px;text-align:center;border:1px solid var(--border);font-weight:700;color:var(--muted)">Directions</th>
+            <th style="padding:8px 10px;text-align:center;border:1px solid var(--border);font-weight:700;color:var(--muted)">Website</th>
+          </tr>
+        </thead>
+        <tbody id="gbpTableBody">
+        </tbody>
+      </table>
+      <div style="margin-top:8px;font-size:10px;color:var(--dim)">Source: Google Business Profile dashboard · Realtimemarketing.com</div>
+    </div>
+  </div>
+</div>
+
+<!-- LOCAL SERVICE ADS SECTION -->
+<div class="sec" id="lsa-section">
+  <div class="sec-title"><span class="dot" style="background:#34a853"></span>Local Service Ads — Client Accounts (Google Guaranteed) <span style="font-size:10px;font-weight:400;color:var(--dim);margin-left:8px">· All RTM-managed client accounts · Awaiting first script run</span></div>
+
+  <!-- Two-column explainer + steps -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-bottom:18px">
+
+    <!-- How LSA data flows -->
+    <div style="background:rgba(52,168,83,0.07);border:1px solid rgba(52,168,83,0.25);border-radius:8px;padding:14px 18px">
+      <div style="font-size:11px;font-weight:700;color:#34a853;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">How this data connects</div>
+      <div style="font-size:11px;color:var(--fg);line-height:1.8">
+        The Google Ads Script now queries <strong>LOCAL_SERVICES campaign type</strong> across all 58 client accounts in your MCC. Any client whose LSA account is <strong>linked to the MCC</strong> will automatically appear here after the script runs.<br><br>
+        Clients with <strong>standalone LSA accounts</strong> (not MCC-linked) need to be connected separately — see the right panel.
+      </div>
+    </div>
+
+    <!-- Two connection paths -->
+    <div style="background:rgba(66,133,244,0.06);border:1px solid rgba(66,133,244,0.2);border-radius:8px;padding:14px 18px">
+      <div style="font-size:11px;font-weight:700;color:#4285f4;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Two ways to connect client LSA</div>
+      <div style="font-size:11px;color:var(--fg);line-height:1.8">
+        <strong style="color:#34a853">✅ MCC-linked (automatic):</strong> Client's LSA account is already inside the MCC → script pulls it automatically.<br><br>
+        <strong style="color:#fbbc04">⚙ Standalone LSA account:</strong> Client manages LSA separately →
+        <ol style="margin:4px 0 0 16px;padding:0;line-height:2">
+          <li>Go to <a href="https://ads.google.com/local-services-ads" target="_blank" style="color:#4285f4">ads.google.com/local-services-ads</a></li>
+          <li>Log in to the client's LSA account</li>
+          <li>Share the <strong>LSA Account ID</strong> — I'll connect it via the Local Services API</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activate steps -->
+  <div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin-bottom:18px">
+    <div style="font-size:11px;font-weight:700;color:var(--fg);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Steps to populate this section now</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <div style="text-align:center;padding:10px 6px">
+        <div style="font-size:22px;margin-bottom:4px">1️⃣</div>
+        <div style="font-size:10px;color:var(--fg);line-height:1.5">Open <strong>Google Ads MCC</strong><br>→ Tools → Scripts</div>
+      </div>
+      <div style="text-align:center;padding:10px 6px">
+        <div style="font-size:22px;margin-bottom:4px">2️⃣</div>
+        <div style="font-size:10px;color:var(--fg);line-height:1.5">Paste the <strong>updated script</strong><br>(now includes LSA tab)</div>
+      </div>
+      <div style="text-align:center;padding:10px 6px">
+        <div style="font-size:22px;margin-bottom:4px">3️⃣</div>
+        <div style="font-size:10px;color:var(--fg);line-height:1.5">Click <strong>Run</strong> or wait for<br>daily schedule</div>
+      </div>
+      <div style="text-align:center;padding:10px 6px">
+        <div style="font-size:22px;margin-bottom:4px">4️⃣</div>
+        <div style="font-size:10px;color:var(--fg);line-height:1.5">Tell Claude the LSA numbers<br>→ dashboard updates instantly</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Placeholder Cards -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gap);margin-bottom:18px">
+    <div class="kpi" style="border-color:rgba(52,168,83,0.3)">
+      <div class="kpi-lbl">Total LSA Spend (30D)</div>
+      <div class="kpi-val" style="color:var(--dim)">—</div>
+      <div class="kpi-sub">All client accounts</div>
+    </div>
+    <div class="kpi" style="border-color:rgba(52,168,83,0.3)">
+      <div class="kpi-lbl">Total Leads (30D)</div>
+      <div class="kpi-val" style="color:var(--dim)">—</div>
+      <div class="kpi-sub">Calls + messages</div>
+    </div>
+    <div class="kpi" style="border-color:rgba(52,168,83,0.3)">
+      <div class="kpi-lbl">Avg Cost Per Lead</div>
+      <div class="kpi-val" style="color:var(--dim)">—</div>
+      <div class="kpi-sub">Across all clients</div>
+    </div>
+    <div class="kpi" style="border-color:rgba(52,168,83,0.3)">
+      <div class="kpi-lbl">Active LSA Accounts</div>
+      <div class="kpi-val" style="color:var(--dim)">—</div>
+      <div class="kpi-sub">Clients with LSA running</div>
+    </div>
+    <div class="kpi" style="border-color:rgba(52,168,83,0.3)">
+      <div class="kpi-lbl">Disputed / Credited</div>
+      <div class="kpi-val" style="color:var(--dim)">—</div>
+      <div class="kpi-sub">Lead credits requested</div>
+    </div>
+  </div>
+
+  <!-- Two columns: Campaigns + Leads -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)">
+
+    <!-- LSA Campaigns -->
+    <div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#34a853;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid rgba(52,168,83,0.2)">Client LSA Campaigns — Last 30 Days</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead>
+          <tr style="background:var(--card2)">
+            <th style="padding:6px 8px;text-align:left;border:1px solid var(--border);color:var(--muted)">Client Account</th>
+            <th style="padding:6px 8px;text-align:left;border:1px solid var(--border);color:var(--muted)">Campaign</th>
+            <th style="padding:6px 8px;text-align:right;border:1px solid var(--border);color:var(--muted)">Spend</th>
+            <th style="padding:6px 8px;text-align:right;border:1px solid var(--border);color:var(--muted)">Convs</th>
+            <th style="padding:6px 8px;text-align:center;border:1px solid var(--border);color:var(--muted)">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5" style="padding:24px;text-align:center;border:1px solid var(--border);color:var(--dim);font-style:italic;font-size:11px">
+              Run the updated Google Ads Script to auto-detect client LSA campaigns across the MCC
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- LSA Leads -->
+    <div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#34a853;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid rgba(52,168,83,0.2)">Recent LSA Leads — All Clients</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead>
+          <tr style="background:var(--card2)">
+            <th style="padding:6px 8px;text-align:left;border:1px solid var(--border);color:var(--muted)">Client</th>
+            <th style="padding:6px 8px;text-align:left;border:1px solid var(--border);color:var(--muted)">Lead Type</th>
+            <th style="padding:6px 8px;text-align:left;border:1px solid var(--border);color:var(--muted)">Status</th>
+            <th style="padding:6px 8px;text-align:left;border:1px solid var(--border);color:var(--muted)">Category</th>
+            <th style="padding:6px 8px;text-align:left;border:1px solid var(--border);color:var(--muted)">Credit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5" style="padding:24px;text-align:center;border:1px solid var(--border);color:var(--dim);font-style:italic;font-size:11px">
+              Lead-level data populates after script run. Standalone LSA accounts need separate API connection.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:10px;font-size:10px;color:var(--dim)">
+    Source: Google Ads MCC · LOCAL_SERVICES campaign type + local_services_lead resource · Auto-refreshed daily via Script ·
+    <a href="https://docs.google.com/spreadsheets/d/1uqqVC4fu4C6dRKFaok9fmEPB5soiO-63fIamDDOnn84" target="_blank" style="color:#34a853">View Sheet → "Local Service Ads" tab</a> ·
+    Standalone LSA: <a href="https://ads.google.com/local-services-ads" target="_blank" style="color:#34a853">ads.google.com/local-services-ads</a>
+  </div>
+</div>
+
+<!-- GOOGLE ADS SECTION -->
+<div class="sec" id="gads-section">
+  <div class="sec-title"><span class="dot" style="background:#4285f4"></span>Google Ads — realtimemarketing.com <span style="font-size:10px;font-weight:400;color:var(--dim);margin-left:8px">Account 911-816-0797 · Last updated: 4/12/2026</span></div>
+
+  <!-- KPI Cards -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap);margin-bottom:18px">
+    <div class="kpi b"><div class="kpi-lbl">Last 30D Spend</div><div class="kpi-val">$1,376.78</div><div class="kpi-sub">realtimemarketing.com only</div></div>
+    <div class="kpi r"><div class="kpi-lbl">Last 30D Conversions</div><div class="kpi-val">0</div><div class="kpi-sub">No tracked conversions</div></div>
+    <div class="kpi o"><div class="kpi-lbl">Cost / Conversion</div><div class="kpi-val">N/A</div><div class="kpi-sub">0 conversions recorded</div></div>
+    <div class="kpi p"><div class="kpi-lbl">Impressions</div><div class="kpi-val">—</div><div class="kpi-sub">Run script for detail</div></div>
+  </div>
+
+  <!-- Insight callout -->
+  <div style="background:rgba(234,88,12,0.07);border:1px solid rgba(234,88,12,0.25);border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:12px;line-height:1.7">
+    <strong style="color:#ea580c">⚠ Conversion Tracking Not Set Up</strong> — RTM's own Google Ads account (911-816-0797) recorded
+    <strong>$1,376.78</strong> in ad spend over the last 30 days but <strong>0 conversions</strong>. This means either:
+    (1) no conversion actions are configured in the account, or (2) visitors are not completing tracked goals
+    (form fills, calls, chats). Setting up conversion tracking is the highest-priority fix before increasing budget.
+  </div>
+
+  <!-- Campaigns table -->
+  <div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#4285f4;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid rgba(66,133,244,0.2)">Active Campaigns — realtimemarketing.com Account — Last 30 Days</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr style="background:var(--card2)">
+          <th style="padding:6px 8px;text-align:left;border:1px solid var(--border);color:var(--muted)">Campaign</th>
+          <th style="padding:6px 8px;text-align:right;border:1px solid var(--border);color:var(--muted)">Spend</th>
+          <th style="padding:6px 8px;text-align:right;border:1px solid var(--border);color:var(--muted)">Convs</th>
+          <th style="padding:6px 8px;text-align:center;border:1px solid var(--border);color:var(--muted)">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:5px 8px;border:1px solid var(--border)">RTM - General Services - Business Hours</td>
+          <td style="padding:5px 8px;border:1px solid var(--border);text-align:right;color:var(--blue);font-weight:600">$4,358.66</td>
+          <td style="padding:5px 8px;border:1px solid var(--border);text-align:right">17</td>
+          <td style="padding:5px 8px;border:1px solid var(--border);text-align:center"><span style="background:rgba(22,163,74,0.12);color:#16a34a;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700">Live</span></td>
+        </tr>
+        <tr>
+          <td style="padding:5px 8px;border:1px solid var(--border)">RTM | Dynamic Ads</td>
+          <td style="padding:5px 8px;border:1px solid var(--border);text-align:right;color:var(--blue);font-weight:600">$3,951.95</td>
+          <td style="padding:5px 8px;border:1px solid var(--border);text-align:right">21</td>
+          <td style="padding:5px 8px;border:1px solid var(--border);text-align:center"><span style="background:rgba(22,163,74,0.12);color:#16a34a;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700">Live</span></td>
+        </tr>
+        <tr style="background:var(--card2);font-weight:700">
+          <td style="padding:5px 8px;border:1px solid var(--border);color:var(--muted)">Account Total</td>
+          <td style="padding:5px 8px;border:1px solid var(--border);text-align:right;color:var(--blue)">$1,376.78</td>
+          <td style="padding:5px 8px;border:1px solid var(--border);text-align:right">0</td>
+          <td style="padding:5px 8px;border:1px solid var(--border);text-align:center">—</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:6px;font-size:10px;color:var(--dim)">Note: Campaign-level spend shown is from MCC top-campaigns export. Account total ($1,376.78) is the authoritative RTM-only figure from the accounts sheet.</div>
+  </div>
+
+  <div style="margin-top:12px;font-size:10px;color:var(--dim)">Source: Google Ads MCC · Account 911-816-0797 (realtimemarketing.com) · Auto-updated daily via Google Ads Script · <a href="https://docs.google.com/spreadsheets/d/1uqqVC4fu4C6dRKFaok9fmEPB5soiO-63fIamDDOnn84" target="_blank" style="color:#4285f4">View Full Sheet</a></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- GOOGLE ADS PERFORMANCE REPORT — realtimemarketing.com                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div style="margin:24px 0;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden" id="gads-perf-report">
+
+  <!-- ── REPORT HEADER ── -->
+  <div style="background:linear-gradient(135deg,#0f1c2e 0%,#1a2f4a 60%,#0d2137 100%);padding:36px 40px 30px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(66,133,244,0.03) 40px,rgba(66,133,244,0.03) 41px)"></div>
+    <div style="position:relative">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(66,133,244,0.15);border:1px solid rgba(66,133,244,0.3);color:#7fb3f5;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:16px">
+        ★ Google Ads Performance Report
+      </div>
+      <div style="font-size:28px;font-weight:300;color:#fff;line-height:1.2;margin-bottom:6px">Real Time Marketing</div>
+      <div style="font-size:15px;font-weight:600;color:#4285f4;margin-bottom:14px">realtimemarketing.com — Own Account Analysis</div>
+      <div style="display:flex;gap:24px;font-size:11px;color:rgba(255,255,255,0.45)">
+        <span>📅 Report Date: April 12, 2026</span>
+        <span>📊 Period: Last 30 Days</span>
+        <span>🔑 Account: 911-816-0797</span>
+        <span>📢 2 Active Campaigns</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EXECUTIVE SUMMARY BAR ── -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);background:rgba(66,133,244,0.06);border-bottom:2px solid rgba(66,133,244,0.2)">
+    <div style="padding:20px 24px;border-right:1px solid var(--border);text-align:center">
+      <div style="font-size:26px;font-weight:700;color:#4285f4;line-height:1;margin-bottom:4px">$1,376</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Monthly Ad Spend</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px">Last 30 days</div>
+    </div>
+    <div style="padding:20px 24px;border-right:1px solid var(--border);text-align:center">
+      <div style="font-size:26px;font-weight:700;color:#ef4444;line-height:1;margin-bottom:4px">0</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Conversions Tracked</div>
+      <div style="font-size:10px;color:#ef4444;margin-top:2px">⚠ Tracking not set up</div>
+    </div>
+    <div style="padding:20px 24px;border-right:1px solid var(--border);text-align:center">
+      <div style="font-size:26px;font-weight:700;color:var(--dim);line-height:1;margin-bottom:4px">N/A</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Cost Per Lead</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px">Requires conversions</div>
+    </div>
+    <div style="padding:20px 24px;border-right:1px solid var(--border);text-align:center">
+      <div style="font-size:26px;font-weight:700;color:#00d46a;line-height:1;margin-bottom:4px">2</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Active Campaigns</div>
+      <div style="font-size:10px;color:#00d46a;margin-top:2px">Both live &amp; serving</div>
+    </div>
+    <div style="padding:20px 24px;text-align:center">
+      <div style="font-size:26px;font-weight:700;color:#fbbc04;line-height:1;margin-bottom:4px">0.84%</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Share of MCC Budget</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px">vs $163K MCC total</div>
+    </div>
+  </div>
+
+  <div style="padding:32px 40px">
+
+    <!-- ── SPEND vs BENCHMARK CHART ── -->
+    <div style="margin-bottom:32px">
+      <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+        <div style="font-size:16px;font-weight:600;color:var(--fg)">RTM Own Spend vs MCC Benchmark</div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);padding:2px 10px;border-radius:12px">Last 30 Days</div>
+      </div>
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:24px 28px">
+        <!-- RTM vs MCC avg comparison bars -->
+        <div style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--fg);margin-bottom:6px">
+            <span><strong>realtimemarketing.com</strong> (RTM own account)</span><span style="color:#4285f4;font-weight:700">$1,376.78</span>
+          </div>
+          <div style="height:12px;background:var(--border);border-radius:6px;overflow:hidden">
+            <div style="height:100%;width:48.7%;background:#4285f4;border-radius:6px"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--fg);margin-bottom:6px">
+            <span>MCC Average per client account</span><span style="color:#fbbc04;font-weight:700">$2,825.77</span>
+          </div>
+          <div style="height:12px;background:var(--border);border-radius:6px;overflow:hidden">
+            <div style="height:100%;width:100%;background:#fbbc04;border-radius:6px"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:4px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--fg);margin-bottom:6px">
+            <span>Top client (Yourbellplumbing.com)</span><span style="color:#a855f7;font-weight:700">$14,797.50</span>
+          </div>
+          <div style="height:12px;background:var(--border);border-radius:6px;overflow:hidden">
+            <div style="height:100%;width:100%;background:linear-gradient(90deg,#a855f7,rgba(168,85,247,0.4));border-radius:6px"></div>
+          </div>
+          <div style="font-size:10px;color:var(--dim);margin-top:4px;text-align:right">Scale: $14,797 = 100%</div>
+        </div>
+        <div style="margin-top:14px;padding:10px 14px;background:rgba(251,188,4,0.08);border:1px solid rgba(251,188,4,0.2);border-radius:6px;font-size:11px;color:var(--fg);line-height:1.6">
+          <strong style="color:#fbbc04">Key Finding:</strong> RTM is investing <strong>$1,376/month</strong> on its own advertising — only <strong>48.7%</strong> of what an average client account spends. As an agency that manages $163K/month in client spend, RTM's own marketing investment is significantly below the benchmark it sets for clients.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INSIGHT CARDS ── -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--fg)">Key Findings &amp; Anomalies</div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);padding:2px 10px;border-radius:12px">Flagged Items</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px">
+
+      <div style="background:var(--card2);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:20px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#ef4444;margin-bottom:8px">⚠ Critical Issue</div>
+        <div style="font-size:15px;font-weight:600;color:var(--fg);margin-bottom:8px">Zero Conversion Tracking</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.65">RTM is spending <strong style="color:var(--fg)">$1,376.78/month</strong> on Google Ads with <strong style="color:#ef4444">0 conversions recorded</strong>. This doesn't mean ads aren't working — it means there's no measurement in place. Every dollar spent is untraceable. This is the #1 fix before any other optimization.</div>
+      </div>
+
+      <div style="background:var(--card2);border:1px solid var(--border);border-left:4px solid #fbbc04;border-radius:8px;padding:20px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fbbc04;margin-bottom:8px">⚡ Watch</div>
+        <div style="font-size:15px;font-weight:600;color:var(--fg);margin-bottom:8px">Underinvesting in Own Brand</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.65">RTM's $1,376 monthly spend is <strong style="color:var(--fg)">less than half</strong> the MCC per-account average ($2,825). An agency that tells clients to invest in paid search should model that behavior. Competitors actively bidding on "digital marketing agency" and "home services marketing" terms are capturing RTM's potential leads.</div>
+      </div>
+
+      <div style="background:var(--card2);border:1px solid var(--border);border-left:4px solid #00d46a;border-radius:8px;padding:20px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#00d46a;margin-bottom:8px">✦ Positive</div>
+        <div style="font-size:15px;font-weight:600;color:var(--fg);margin-bottom:8px">Both Campaigns Actively Serving</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.65"><strong style="color:var(--fg)">RTM - General Services</strong> and <strong style="color:var(--fg)">RTM | Dynamic Ads</strong> are both live with ENABLED status. Dynamic Search Ads are self-optimizing against RTM's website content — a good low-maintenance approach. The ads are running; the gap is attribution and budget, not setup.</div>
+      </div>
+
+      <div style="background:var(--card2);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:20px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#ef4444;margin-bottom:8px">⚠ Revenue Impact</div>
+        <div style="font-size:15px;font-weight:600;color:var(--fg);margin-bottom:8px">Unknown Return on $16,500/Year</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.65">At $1,376/month, RTM spends approximately <strong style="color:var(--fg)">$16,512/year</strong> on its own Google Ads with no visibility into ROI. If even 1 enterprise client worth $24K/year comes from this spend, the return is excellent — but without tracking, there's no way to prove it or scale what works.</div>
+      </div>
+
+      <div style="background:var(--card2);border:1px solid var(--border);border-left:4px solid #fbbc04;border-radius:8px;padding:20px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fbbc04;margin-bottom:8px">⚡ Opportunity</div>
+        <div style="font-size:15px;font-weight:600;color:var(--fg);margin-bottom:8px">GSC Shows Low Paid Search Visibility</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.65">Organic search for "digital marketing for plumbers" gets <strong style="color:var(--fg)">Position 14.5</strong> — page 2. Paid search campaigns targeting the same terms could capture leads RTM's organic content can't yet reach. The 2,733 impressions for that term alone represent missed paid visibility.</div>
+      </div>
+
+      <div style="background:var(--card2);border:1px solid var(--border);border-left:4px solid #4285f4;border-radius:8px;padding:20px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4285f4;margin-bottom:8px">📊 Benchmark</div>
+        <div style="font-size:15px;font-weight:600;color:var(--fg);margin-bottom:8px">RTM Manages $36.24 CPA for Clients</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.65">Across the MCC, RTM delivers a <strong style="color:var(--fg)">$36.24 average CPA</strong> for client accounts. For an agency selling to home service contractors, a qualified lead is worth $500–$2,000 in lifetime value. Once RTM's own conversion tracking is live, a $100–$200 CPA target would be highly profitable.</div>
+      </div>
+
+    </div>
+
+    <!-- ── CAMPAIGN PERFORMANCE TABLE ── -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--fg)">Campaign Performance</div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);padding:2px 10px;border-radius:12px">Last 30 Days</div>
+    </div>
+
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:32px">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:#0f1c2e">
+            <th style="padding:10px 16px;text-align:left;color:rgba(255,255,255,0.6);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase">Campaign</th>
+            <th style="padding:10px 16px;text-align:center;color:rgba(255,255,255,0.6);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase">Type</th>
+            <th style="padding:10px 16px;text-align:right;color:rgba(255,255,255,0.6);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase">Spend</th>
+            <th style="padding:10px 16px;text-align:right;color:rgba(255,255,255,0.6);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase">Convs</th>
+            <th style="padding:10px 16px;text-align:right;color:rgba(255,255,255,0.6);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase">CPA</th>
+            <th style="padding:10px 16px;text-align:center;color:rgba(255,255,255,0.6);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase">Status</th>
+            <th style="padding:10px 16px;text-align:left;color:rgba(255,255,255,0.6);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase">Assessment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:12px 16px;color:var(--fg);font-weight:600">RTM - General Services - Business Hours</td>
+            <td style="padding:12px 16px;text-align:center"><span style="background:rgba(66,133,244,0.1);color:#4285f4;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:600">Search</span></td>
+            <td style="padding:12px 16px;text-align:right;color:#4285f4;font-weight:700">$4,358.66*</td>
+            <td style="padding:12px 16px;text-align:right;color:var(--muted)">17*</td>
+            <td style="padding:12px 16px;text-align:right;color:var(--muted)">$256.39*</td>
+            <td style="padding:12px 16px;text-align:center"><span style="background:rgba(22,163,74,0.12);color:#16a34a;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700">Live</span></td>
+            <td style="padding:12px 16px;font-size:11px;color:var(--muted)">Business hours targeting — good intent signal</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:12px 16px;color:var(--fg);font-weight:600">RTM | Dynamic Ads</td>
+            <td style="padding:12px 16px;text-align:center"><span style="background:rgba(168,85,247,0.1);color:#a855f7;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:600">DSA</span></td>
+            <td style="padding:12px 16px;text-align:right;color:#4285f4;font-weight:700">$3,951.95*</td>
+            <td style="padding:12px 16px;text-align:right;color:var(--muted)">21*</td>
+            <td style="padding:12px 16px;text-align:right;color:var(--muted)">$188.19*</td>
+            <td style="padding:12px 16px;text-align:center"><span style="background:rgba(22,163,74,0.12);color:#16a34a;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700">Live</span></td>
+            <td style="padding:12px 16px;font-size:11px;color:var(--muted)">Dynamic ads auto-match to site pages</td>
+          </tr>
+          <tr style="background:rgba(66,133,244,0.05);font-weight:700">
+            <td style="padding:12px 16px;color:var(--muted);font-size:11px" colspan="2">Account Total (authoritative)</td>
+            <td style="padding:12px 16px;text-align:right;color:#4285f4">$1,376.78</td>
+            <td style="padding:12px 16px;text-align:right;color:#ef4444">0</td>
+            <td style="padding:12px 16px;text-align:right;color:var(--dim)">N/A</td>
+            <td style="padding:12px 16px;text-align:center;color:var(--muted)">2 live</td>
+            <td style="padding:12px 16px;font-size:10px;color:var(--dim)">From MCC Accounts Summary tab</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:10px 16px;font-size:10px;color:var(--dim);border-top:1px solid var(--border)">* Campaign-level spend figures are from the MCC-wide campaigns export and may include overlap across accounts. Account total $1,376.78 is the confirmed RTM-only spend.</div>
+    </div>
+
+    <!-- ── RECOMMENDATIONS ── -->
+    <div style="background:#0f1c2e;border-radius:10px;padding:32px 36px;margin-bottom:8px">
+      <div style="font-size:18px;font-weight:600;color:#7fb3f5;margin-bottom:24px">What RTM Needs to Work On</div>
+
+      <div style="display:grid;grid-template-columns:36px 1fr;gap:16px;margin-bottom:20px;align-items:start">
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(66,133,244,0.2);border:1px solid rgba(66,133,244,0.4);color:#7fb3f5;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">Set Up Google Ads Conversion Tracking — Immediately</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6">Install the Google Ads conversion tag for form submissions on the /contact page. Add a phone call conversion via CallRail's Google Ads integration (GCLID passing). Without this, all optimization decisions are guesswork. Target: done within 1 week.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:36px 1fr;gap:16px;margin-bottom:20px;align-items:start">
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(66,133,244,0.2);border:1px solid rgba(66,133,244,0.4);color:#7fb3f5;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">Connect CallRail to Google Ads via GCLID</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6">RTM already has CallRail with 171-472-856. Enable "Keyword Pools" for the Google Ads source, enable auto-tagging in Google Ads, and import call conversions. This closes the loop between ad clicks and inbound calls — the most likely conversion path for an agency.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:36px 1fr;gap:16px;margin-bottom:20px;align-items:start">
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(66,133,244,0.2);border:1px solid rgba(66,133,244,0.4);color:#7fb3f5;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">Add Competitor Conquest Keywords to the Search Campaign</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6">GSC shows RTM ranking at Position 14.5 for "digital marketing for plumbers" (2,733 impressions, near-zero clicks). A targeted search campaign bidding on high-intent terms like "home services marketing agency," "plumbing SEO," and "Google Guaranteed management" would capture demand RTM's organic rankings can't yet reach.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:36px 1fr;gap:16px;margin-bottom:20px;align-items:start">
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(66,133,244,0.2);border:1px solid rgba(66,133,244,0.4);color:#7fb3f5;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">Increase RTM's Own Monthly Budget to Match Client Averages</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6">RTM's current $1,376/month is 48.7% of the MCC per-account average. Once conversion tracking is live and a CPA is established, consider scaling to $3,000–$5,000/month. A single new client at $2,000–$3,000/month retainer covers the entire annual ad spend — the economics are strongly in favor of investing more.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:36px 1fr;gap:16px;margin-bottom:20px;align-items:start">
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(66,133,244,0.2);border:1px solid rgba(66,133,244,0.4);color:#7fb3f5;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">Create Dedicated Landing Pages for Each Service Vertical</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6">The Dynamic Ads campaign targets RTM's homepage and service pages. High-converting campaigns need dedicated landing pages with a single CTA, testimonials, and a lead form. Build separate pages for "Plumbing Marketing," "HVAC Marketing," and "Roofing Marketing" — each tightly aligned to the ad group targeting that vertical.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:36px 1fr;gap:16px;align-items:start">
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(66,133,244,0.2);border:1px solid rgba(66,133,244,0.4);color:#7fb3f5;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">6</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">Set a 90-Day Target: $150 CPA for Agency Leads</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6">Once conversion tracking is live, set a Target CPA bid strategy at $150/lead. Given RTM manages $36.24 CPAs for clients in competitive home service markets, achieving a $100–$200 CPA for its own higher-value B2B leads is a realistic 90-day goal. Track by campaign, pause what's above target, scale what's below.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:10px;color:var(--dim);text-align:right;margin-top:10px">
+      Google Ads Account 911-816-0797 · realtimemarketing.com · Data: Google Ads MCC Script · April 12, 2026 ·
+      <a href="https://docs.google.com/spreadsheets/d/1uqqVC4fu4C6dRKFaok9fmEPB5soiO-63fIamDDOnn84" target="_blank" style="color:#4285f4">View Raw Data Sheet</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Real Time Marketing Performance Report &nbsp;·&nbsp; Data: GA4 + Google Search Console + CallRail (Account 171-472-856) + Google Business Profile + Google Ads MCC &nbsp;·&nbsp; Period: Feb 28 – Apr 8, 2026 (40 days) &nbsp;·&nbsp; Generated Apr 12, 2026
+</div>
+
+</div><!-- /wrap -->
+<script>
+// ── DATA ─────────────────────────────────────────────────────
+const DAILY = [
+  {d:"Feb 28",s:158},{d:"Mar 1",s:161},{d:"Mar 2",s:533},{d:"Mar 3",s:591},
+  {d:"Mar 4",s:608},{d:"Mar 5",s:541},{d:"Mar 6",s:388},{d:"Mar 7",s:216},
+  {d:"Mar 8",s:173},{d:"Mar 9",s:555},{d:"Mar 10",s:537},{d:"Mar 11",s:586},
+  {d:"Mar 12",s:541},{d:"Mar 13",s:521},{d:"Mar 14",s:196},{d:"Mar 15",s:164},
+  {d:"Mar 16",s:467},{d:"Mar 17",s:517},{d:"Mar 18",s:543},{d:"Mar 19",s:543},
+  {d:"Mar 20",s:501},{d:"Mar 21",s:190},{d:"Mar 22",s:195},{d:"Mar 23",s:540},
+  {d:"Mar 24",s:577},{d:"Mar 25",s:471},{d:"Mar 26",s:550},{d:"Mar 27",s:516},
+  {d:"Mar 28",s:212},{d:"Mar 29",s:132},{d:"Mar 30",s:484},{d:"Mar 31",s:515},
+  {d:"Apr 1",s:575},{d:"Apr 2",s:611},{d:"Apr 3",s:478},{d:"Apr 4",s:248},
+  {d:"Apr 5",s:175},{d:"Apr 6",s:581},{d:"Apr 7",s:638},{d:"Apr 8",s:523}
+];
+
+const KEYWORDS = [
+  {kw:"real time marketing",      clicks:90,  imp:2065,   ctr:4.36,  pos:7.9,  type:"brand"},
+  {kw:"realtime marketing",       clicks:23,  imp:690,    ctr:3.33,  pos:4.0,  type:"brand"},
+  {kw:"realtimemarketing",        clicks:16,  imp:26,     ctr:61.54, pos:1.1,  type:"brand"},
+  {kw:"real time marketing reviews",clicks:5, imp:23,     ctr:21.74, pos:1.4,  type:"brand"},
+  {kw:"digital marketing for home services",clicks:3,imp:2698,ctr:0.11,pos:8.2,type:"commercial"},
+  {kw:"digital marketing for plumbers",clicks:3,imp:2733,ctr:0.11,pos:14.5,type:"commercial"},
+  {kw:"seo for contractors",      clicks:2,   imp:2135,   ctr:0.09,  pos:10.2, type:"commercial"},
+  {kw:"local service ads management",clicks:1,imp:578,    ctr:0.17,  pos:8.5,  type:"commercial"},
+  {kw:"gbp management agency",    clicks:1,   imp:61,     ctr:1.64,  pos:4.4,  type:"commercial"},
+  {kw:"digital marketing for roofers",clicks:1,imp:788,  ctr:0.13,  pos:17.7, type:"commercial"},
+  {kw:"real-time marketing",      clicks:1,   imp:365,    ctr:0.27,  pos:5.0,  type:"brand"},
+  {kw:"gbp management",           clicks:1,   imp:250,    ctr:0.40,  pos:19.7, type:"commercial"},
+  {kw:"plumbing marketing agencies",clicks:1, imp:12,     ctr:8.33,  pos:14.4, type:"commercial"},
+  {kw:"tree service marketing",   clicks:1,   imp:417,    ctr:0.24,  pos:23.5, type:"commercial"},
+  {kw:"digital marketing for plumbing companies",clicks:1,imp:362,ctr:0.28,pos:12.3,type:"commercial"},
+];
+
+const PAGES = [
+  {page:"/ (Homepage)",               clicks:170, imp:7332,   ctr:2.32,  pos:10.6},
+  {page:"/? (GBP UTM)",               clicks:22,  imp:7500,   ctr:0.29,  pos:4.2},
+  {page:"/services/google-guaranteed-local-services-ads/", clicks:10, imp:8100, ctr:0.12, pos:25.7},
+  {page:"/who-we-help/digital-marketing-for-plumbers/",   clicks:9,  imp:25638,ctr:0.04, pos:18.7},
+  {page:"/contact/",                   clicks:8,   imp:3126,   ctr:0.26,  pos:7.3},
+  {page:"/services/google-business-profile/",             clicks:8,  imp:10679,ctr:0.07, pos:12.8},
+  {page:"/services/google-guaranteed-local-services-ads-for-roofers/",clicks:7,imp:11084,ctr:0.06,pos:7.6},
+  {page:"/blog/duplicate-listings-gbp/",                 clicks:6,  imp:2109, ctr:0.28, pos:8.3},
+  {page:"/services/google-guaranteed-lsa-for-hvac/",     clicks:6,  imp:9079, ctr:0.07, pos:9.5},
+  {page:"/who-we-help/digital-marketing-for-home-services/",clicks:6,imp:12121,ctr:0.05,pos:20.9},
+];
+
+const CHANNELS = [
+  {name:"Direct",       sessions:7867, eng:41.6, conv:95,  color:"#4d9fff"},
+  {name:"Internal Ref", sessions:3220, eng:35.6, conv:0,   color:"#ff3d3d"},
+  {name:"Organic Search",sessions:2608,eng:68.3, conv:11,  color:"#00d46a"},
+  {name:"Paid Search",  sessions:1058, eng:56.6, conv:216, color:"#a855f7"},
+  {name:"Client Refs",  sessions:779,  eng:28.0, conv:0,   color:"#ff8000"},
+  {name:"Other Refs",   sessions:677,  eng:60.0, conv:0,   color:"#ffc800"},
+  {name:"Email",        sessions:118,  eng:62.7, conv:4,   color:"#00c8c8"},
+];
+
+// ── KEYWORD TABLE ─────────────────────────────────────────────
+const kwTbody = document.getElementById('kw-tbody');
+const maxImp = Math.max(...KEYWORDS.map(k=>k.imp));
+KEYWORDS.forEach(k => {
+  const typePill = k.type === 'brand'
+    ? '<span class="pill pill-purple">Brand</span>'
+    : '<span class="pill pill-blue">Commercial</span>';
+  const ctrCls = k.ctr > 2 ? 'pill-green' : k.ctr > 0.3 ? 'pill-orange' : 'pill-red';
+  const posCls = k.pos <= 5 ? 'style="color:#00d46a"' : k.pos <= 10 ? 'style="color:#ffc800"' : 'style="color:#ff7070"';
+  kwTbody.innerHTML += `<tr>
+    <td style="color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${k.kw}">${k.kw}</td>
+    <td style="font-weight:700;color:var(--text)">${k.clicks}</td>
+    <td>
+      <div class="mini-bar-wrap">
+        <div class="mini-bar"><div class="mini-fill" style="width:${(k.imp/maxImp*100).toFixed(1)}%;background:#4d9fff55"></div></div>
+        <span style="color:var(--muted);min-width:38px">${k.imp>=1000?(k.imp/1000).toFixed(1)+'K':k.imp}</span>
+      </div>
+    </td>
+    <td><span class="pill ${ctrCls}">${k.ctr}%</span></td>
+    <td ${posCls}>${k.pos}</td>
+    <td>${typePill}</td>
+  </tr>`;
+});
+
+// ── PAGES TABLE ───────────────────────────────────────────────
+const pgTbody = document.getElementById('pg-tbody');
+PAGES.forEach(p => {
+  const label = p.page.length > 38 ? p.page.slice(0,35)+'…' : p.page;
+  const ctrCls = p.ctr > 1 ? 'pill-green' : p.ctr > 0.2 ? 'pill-orange' : 'pill-red';
+  const posCls = p.pos <= 10 ? 'style="color:#00d46a"' : p.pos <= 20 ? 'style="color:#ffc800"' : 'style="color:#ff7070"';
+  pgTbody.innerHTML += `<tr>
+    <td style="color:var(--text);max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px" title="${p.page}">${label}</td>
+    <td style="font-weight:700;color:var(--text)">${p.clicks}</td>
+    <td style="color:var(--muted)">${p.imp>=1000?(p.imp/1000).toFixed(1)+'K':p.imp}</td>
+    <td><span class="pill ${ctrCls}">${p.ctr}%</span></td>
+    <td ${posCls}>${p.pos}</td>
+  </tr>`;
+});
+
+// ── DAILY CHART ───────────────────────────────────────────────
+const weekends = DAILY.map((d,i) => {
+  const day = new Date(2026,1,28);
+  day.setDate(day.getDate()+i);
+  return day.getDay()===0||day.getDay()===6;
+});
+
+new Chart(document.getElementById('dailyChart'),{
+  type:'bar',
+  data:{
+    labels: DAILY.map(d=>d.d),
+    datasets:[{
+      label:'Sessions',
+      data: DAILY.map(d=>d.s),
+      backgroundColor: DAILY.map((d,i)=> weekends[i] ? 'rgba(68,68,90,0.5)' : 'rgba(77,159,255,0.55)'),
+      borderColor: DAILY.map((d,i)=> weekends[i] ? '#44445a' : '#4d9fff'),
+      borderWidth:1, borderRadius:3,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`Sessions: ${ctx.parsed.y}`}}},
+    scales:{
+      x:{ticks:{color:'#6b7280',font:{size:9},maxRotation:45},grid:{color:'rgba(0,0,0,0.05)'}},
+      y:{ticks:{color:'#6b7280',font:{size:10}},grid:{color:'rgba(0,0,0,0.06)'}}
+    }
+  }
+});
+
+// ── CHANNEL CHART ─────────────────────────────────────────────
+new Chart(document.getElementById('channelChart'),{
+  type:'doughnut',
+  data:{
+    labels: CHANNELS.map(c=>c.name),
+    datasets:[{
+      data: CHANNELS.map(c=>c.sessions),
+      backgroundColor: CHANNELS.map(c=>c.color+'88'),
+      borderColor: CHANNELS.map(c=>c.color),
+      borderWidth:2,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false, cutout:'60%',
+    plugins:{
+      legend:{position:'right',labels:{color:'#6b7280',font:{size:10},usePointStyle:true,padding:8}},
+      tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} sessions`}}
+    }
+  }
+});
+
+// ── GEO DATA ─────────────────────────────────────────────────
+const GEO = [
+  {country:"United States", flag:"🇺🇸", sessions:11912, users:7983, eng:42.7, signal:"real", signalLabel:"Prospects"},
+  {country:"Philippines",   flag:"🇵🇭", sessions:2789,  users:345,  eng:74.7, signal:"internal", signalLabel:"⚠ RTM Staff"},
+  {country:"Singapore",     flag:"🇸🇬", sessions:702,   users:701,  eng:5.1,  signal:"bot", signalLabel:"⚠ Bots"},
+  {country:"Nigeria",       flag:"🇳🇬", sessions:368,   users:365,  eng:67.4, signal:"unclear", signalLabel:"Unclear"},
+  {country:"China",         flag:"🇨🇳", sessions:240,   users:240,  eng:14.6, signal:"bot", signalLabel:"⚠ Crawlers"},
+  {country:"Saudi Arabia",  flag:"🇸🇦", sessions:148,   users:146,  eng:71.6, signal:"real", signalLabel:"Prospect"},
+  {country:"Canada",        flag:"🇨🇦", sessions:127,   users:94,   eng:48.8, signal:"real", signalLabel:"Prospect"},
+  {country:"Germany",       flag:"🇩🇪", sessions:90,    users:87,   eng:40.0, signal:"real", signalLabel:"Prospect"},
+];
+
+const geoTbody = document.getElementById('geo-tbody');
+GEO.forEach(g => {
+  const ratio = (g.sessions/g.users).toFixed(1);
+  const signalCls = g.signal==='real'?'pill-green':g.signal==='internal'?'pill-orange':g.signal==='bot'?'pill-red':'pill-gray';
+  const engCls = g.eng>50?'style="color:#00d46a"':g.eng>25?'style="color:#ffc800"':'style="color:#ff7070"';
+  geoTbody.innerHTML += `<tr>
+    <td style="font-weight:600">${g.flag} ${g.country}</td>
+    <td style="font-weight:700">${g.sessions.toLocaleString()}</td>
+    <td style="color:var(--muted)">${g.users.toLocaleString()}</td>
+    <td style="color:${parseFloat(ratio)>4?'#ff7070':parseFloat(ratio)>2?'#ffc800':'#00d46a'};font-weight:600">${ratio}x</td>
+    <td ${engCls}>${g.eng}%</td>
+    <td><span class="pill ${signalCls}">${g.signalLabel}</span></td>
+  </tr>`;
+});
+
+new Chart(document.getElementById('geoChart'),{
+  type:'bar',
+  data:{
+    labels: GEO.map(g=>g.flag+' '+g.country.replace(' ','\n')),
+    datasets:[{
+      label:'Sessions',
+      data: GEO.map(g=>g.sessions),
+      backgroundColor: GEO.map(g=>g.signal==='real'?'rgba(77,159,255,0.6)':g.signal==='internal'?'rgba(255,128,0,0.6)':'rgba(255,61,61,0.5)'),
+      borderColor: GEO.map(g=>g.signal==='real'?'#4d9fff':g.signal==='internal'?'#ff8000':'#ff3d3d'),
+      borderWidth:1, borderRadius:4,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label.replace('\n',' ')}: ${ctx.parsed.y.toLocaleString()} sessions`}}},
+    scales:{
+      x:{ticks:{color:'#6b7280',font:{size:10}},grid:{color:'rgba(0,0,0,0.05)'}},
+      y:{ticks:{color:'#6b7280'},grid:{color:'rgba(0,0,0,0.06)'}}
+    }
+  }
+});
+
+// ── LANDING PAGE TABLE ────────────────────────────────────────
+const LP = [
+  {page:"/login",                                  sessions:2225, users:692, eng:72.4, conv:0,  type:"internal"},
+  {page:"/ (Homepage)",                            sessions:1396, users:918, eng:67.3, conv:13, type:"real"},
+  {page:"(not set) — untracked app views",         sessions:854,  users:401, eng:5.7,  conv:34, type:"internal"},
+  {page:"/review/page/... (Client review widget)", sessions:435,  users:321, eng:43.7, conv:0,  type:"internal"},
+  {page:"/services/google-guaranteed-lsa/",        sessions:419,  users:391, eng:59.4, conv:93, type:"mixed"},
+  {page:"/review/list/... (Review list widget)",   sessions:342,  users:269, eng:98.0, conv:0,  type:"internal"},
+  {page:"/services/website-design/",              sessions:322,  users:308, eng:62.4, conv:51, type:"mixed"},
+  {page:"/review/page/... (Review page 2)",        sessions:307,  users:266, eng:41.7, conv:0,  type:"internal"},
+  {page:"/chat/widget/... (Unify360 chat)",        sessions:293,  users:217, eng:88.4, conv:0,  type:"internal"},
+  {page:"/services/search-engine-optimization/",  sessions:191,  users:167, eng:62.8, conv:45, type:"mixed"},
+  {page:"/contact/",                               sessions:179,  users:162, eng:72.1, conv:93, type:"real"},
+  {page:"/services/google-business-profile/",     sessions:106,  users:27,  eng:70.2, conv:0,  type:"real"},
+];
+
+const lpTbody = document.getElementById('lp-tbody');
+LP.forEach(lp => {
+  const rate = lp.sessions > 0 ? (lp.conv/lp.sessions*100).toFixed(1) : '0.0';
+  const rateNum = parseFloat(rate);
+  const rateCls = rateNum > 10 ? 'style="color:#ff7070;font-weight:700"' : rateNum > 2 ? 'style="color:#ffc800;font-weight:700"' : 'style="color:#00d46a;font-weight:700"';
+  const typePill = lp.type==='internal' ? '<span class="lp-label lp-internal">Internal</span>'
+                 : lp.type==='real'     ? '<span class="lp-label lp-real">Prospect</span>'
+                 : '<span class="lp-label lp-mixed">Mixed</span>';
+  const verdict = lp.conv===0 ? '<span style="color:var(--dim);font-size:10px">No tracking</span>'
+    : rateNum > 10 ? '<span class="conv-flag" style="color:#ff7070">⚠ Likely micro-event</span>'
+    : '<span class="conv-flag" style="color:#00d46a">✓ Plausible</span>';
+  const engCls = lp.eng>60?'style="color:#00d46a"':lp.eng>40?'style="color:#ffc800"':'style="color:#ff7070"';
+  lpTbody.innerHTML += `<tr>
+    <td style="font-size:11px;color:var(--text);max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${lp.page}">${lp.page}</td>
+    <td style="font-weight:700">${lp.sessions.toLocaleString()}</td>
+    <td style="color:var(--muted)">${lp.users.toLocaleString()}</td>
+    <td ${engCls}>${lp.eng}%</td>
+    <td style="font-weight:700;color:var(--text)">${lp.conv}</td>
+    <td ${rateCls}>${rate}%</td>
+    <td>${typePill}</td>
+    <td>${verdict}</td>
+  </tr>`;
+});
+
+// ── OPPORTUNITY TABLE ─────────────────────────────────────────
+const OPP = [
+  {kw:"digital marketing for plumbers", vol:2900,  curPos:14.5, curCtr:0.11, targPos:3,  targCtr:1.8},
+  {kw:"LSA for HVAC / lsa management",  vol:1800,  curPos:9.5,  curCtr:0.07, targPos:2,  targCtr:2.8},
+  {kw:"seo for contractors",            vol:2200,  curPos:10.2, curCtr:0.09, targPos:3,  targCtr:1.8},
+  {kw:"local service ads management",   vol:600,   curPos:8.5,  curCtr:0.17, targPos:2,  targCtr:2.8},
+  {kw:"digital marketing for home svc", vol:2700,  curPos:8.2,  curCtr:0.11, targPos:3,  targCtr:1.8},
+];
+
+const oppTbody = document.getElementById('opp-tbody');
+OPP.forEach(o => {
+  const curClicks = Math.round(o.vol * (o.curCtr/100));
+  const targClicks = Math.round(o.vol * (o.targCtr/100));
+  const gain = targClicks - curClicks;
+  oppTbody.innerHTML += `<tr>
+    <td style="color:var(--text);font-weight:600;font-size:11px">${o.kw}</td>
+    <td style="color:var(--muted)">${o.vol.toLocaleString()}/mo</td>
+    <td style="color:#ff7070">${o.curPos}</td>
+    <td style="color:#ff7070">${o.curCtr}%</td>
+    <td style="color:#ff7070">${curClicks}</td>
+    <td style="color:#00d46a;font-weight:700">${o.targPos}</td>
+    <td style="color:#00d46a">${o.targCtr}%</td>
+    <td class="gain-hi">${targClicks}</td>
+    <td class="gain-up">+${gain} clicks</td>
+  </tr>`;
+});
+
+// ── BRAND VS NON-BRAND ────────────────────────────────────────
+new Chart(document.getElementById('brandChart'),{
+  type:'doughnut',
+  data:{
+    labels:['Brand Clicks (128)','Non-Brand Commercial (~30)','Other / Misc (~206)'],
+    datasets:[{
+      data:[128,30,206],
+      backgroundColor:['rgba(168,85,247,0.7)','rgba(77,159,255,0.7)','rgba(68,68,90,0.5)'],
+      borderColor:['#a855f7','#4d9fff','#44445a'],
+      borderWidth:2,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false, cutout:'55%',
+    plugins:{
+      legend:{position:'bottom',labels:{color:'#6b7280',font:{size:10},usePointStyle:true,padding:8,boxWidth:10}},
+      tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} clicks`}}
+    }
+  }
+});
+
+// ── CALLRAIL DATA ─────────────────────────────────────────────
+const CR_SOURCES = [
+  {source:"Google My Business", calls:2262, answered:2156, first:1591, avg_dur:131},
+  {source:"Google LSA",         calls:1442, answered:1404, first:1092, avg_dur:172},
+  {source:"Website SEO",        calls:242,  answered:233,  first:120,  avg_dur:187},
+  {source:"Google Ads",         calls:231,  answered:219,  first:156,  avg_dur:145},
+  {source:"Google Organic",     calls:173,  answered:171,  first:84,   avg_dur:179},
+  {source:"Website",            calls:110,  answered:108,  first:74,   avg_dur:172},
+  {source:"Direct",             calls:75,   answered:69,   first:43,   avg_dur:129},
+  {source:"Yelp Ads",           calls:66,   answered:66,   first:43,   avg_dur:80},
+  {source:"Yelp",               calls:60,   answered:59,   first:50,   avg_dur:174},
+  {source:"Facebook Ads",       calls:26,   answered:12,   first:16,   avg_dur:28},
+  {source:"Bing Organic",       calls:15,   answered:14,   first:10,   avg_dur:208},
+  {source:"Meta Ads",           calls:2,    answered:2,    first:1,    avg_dur:187},
+];
+
+const CR_COMPANIES = [
+  {co:"Goldstarplumbingaz.com",       calls:203},
+  {co:"Drainsbyjames.com",            calls:182},
+  {co:"Pricebustersplumbing.com",     calls:166},
+  {co:"Actionroofing.com",            calls:161},
+  {co:"Bullseyeplumbing.com",         calls:161},
+  {co:"Airprosusa.com",               calls:141},
+  {co:"Sweetsservices.com",           calls:134},
+  {co:"Deltronelectricfl.com",        calls:122},
+  {co:"Allisonsplumbing.com",         calls:113},
+  {co:"Eielectrical.com",             calls:108},
+];
+
+// ── CALL SOURCE TABLE ──────────────────────────────────────────
+const csTbody = document.getElementById('call-source-tbody');
+CR_SOURCES.forEach(s => {
+  const ansRate = (s.answered/s.calls*100).toFixed(1);
+  const ansNum  = parseFloat(ansRate);
+  const ansCls  = ansNum >= 90 ? 'pill-green' : ansNum >= 70 ? 'pill-orange' : 'pill-red';
+  const dur = `${Math.floor(s.avg_dur/60)}m ${s.avg_dur%60}s`;
+  const quality = ansNum >= 95 ? '<span class="pill pill-green">✅ Excellent</span>'
+                : ansNum >= 80 ? '<span class="pill pill-blue">Good</span>'
+                : ansNum >= 60 ? '<span class="pill pill-orange">⚠ Fair</span>'
+                : '<span class="pill pill-red">🔴 Poor</span>';
+  csTbody.innerHTML += `<tr>
+    <td style="font-weight:600;color:var(--text)">${s.source}</td>
+    <td style="font-weight:700">${s.calls.toLocaleString()}</td>
+    <td>${s.answered.toLocaleString()}</td>
+    <td><span class="pill ${ansCls}">${ansRate}%</span></td>
+    <td style="color:var(--muted)">${s.first.toLocaleString()}</td>
+    <td style="color:var(--muted)">${dur}</td>
+    <td>${quality}</td>
+  </tr>`;
+});
+
+// ── CALL SOURCE CHART ─────────────────────────────────────────
+const crColors = ['#16a34a','#2563eb','#7c3aed','#0891b2','#059669','#3b82f6','#6b7280','#f59e0b','#84cc16','#dc2626','#94a3b8','#f43f5e'];
+new Chart(document.getElementById('callSourceChart'), {
+  type: 'bar',
+  data: {
+    labels: CR_SOURCES.map(s => s.source),
+    datasets: [{
+      label: 'Total Calls',
+      data: CR_SOURCES.map(s => s.calls),
+      backgroundColor: CR_SOURCES.map((s,i) => s.source==='Facebook Ads' ? 'rgba(220,38,38,0.7)' : crColors[i]+'99'),
+      borderColor:     CR_SOURCES.map((s,i) => s.source==='Facebook Ads' ? '#dc2626' : crColors[i]),
+      borderWidth: 1, borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.x.toLocaleString()} calls` }}},
+    scales: {
+      x: { ticks: { color:'#6b7280', font:{size:10} }, grid: { color:'rgba(0,0,0,0.05)' }},
+      y: { ticks: { color:'#374151', font:{size:10} }, grid: { display: false }}
+    }
+  }
+});
+
+// ── TOP COMPANIES CHART ───────────────────────────────────────
+new Chart(document.getElementById('callCompanyChart'), {
+  type: 'bar',
+  data: {
+    labels: CR_COMPANIES.map(c => c.co.replace('.com','')),
+    datasets: [{
+      label: 'Calls',
+      data: CR_COMPANIES.map(c => c.calls),
+      backgroundColor: 'rgba(37,99,235,0.6)',
+      borderColor: '#2563eb',
+      borderWidth: 1, borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.x} calls` }}},
+    scales: {
+      x: { ticks: { color:'#6b7280', font:{size:10} }, grid: { color:'rgba(0,0,0,0.05)' }},
+      y: { ticks: { color:'#374151', font:{size:10} }, grid: { display: false }}
+    }
+  }
+});
+
+// ── GBP DATA ──────────────────────────────────────────────────────
+const GBP_DATA = [
+  // 2026
+  { year:2026, month:'March',    insights:375, calls:3, chat:4, directions:48, website:16 },
+  { year:2026, month:'February', insights:373, calls:1, chat:0, directions:48, website:30 },
+  { year:2026, month:'January',  insights:365, calls:1, chat:0, directions:56, website:29 },
+  // 2025
+  { year:2025, month:'December', insights:347, calls:1, chat:0, directions:59, website:18 },
+  { year:2025, month:'November', insights:376, calls:4, chat:1, directions:36, website:22 },
+  { year:2025, month:'October',  insights:461, calls:4, chat:1, directions:52, website:27 },
+  { year:2025, month:'September',insights:471, calls:4, chat:0, directions:30, website:30 },
+  { year:2025, month:'August',   insights:442, calls:4, chat:0, directions:23, website:28 },
+  { year:2025, month:'July',     insights:367, calls:4, chat:4, directions:27, website:26 },
+  { year:2025, month:'June',     insights:612, calls:8, chat:0, directions:45, website:50 },
+  { year:2025, month:'May',      insights:598, calls:3, chat:0, directions:52, website:36 },
+  { year:2025, month:'April',    insights:557, calls:3, chat:0, directions:30, website:30 },
+  { year:2025, month:'March',    insights:547, calls:1, chat:0, directions:26, website:33 },
+  { year:2025, month:'February', insights:413, calls:3, chat:0, directions:36, website:31 },
+  { year:2025, month:'January',  insights:454, calls:2, chat:0, directions:41, website:32 },
+];
+
+// Build GBP table
+const gbpTbody = document.getElementById('gbpTableBody');
+let lastYear = null;
+GBP_DATA.forEach(r => {
+  const isNew = r.year !== lastYear;
+  if (isNew) lastYear = r.year;
+  const rowBg = r.year === 2026 ? 'background:rgba(22,163,74,0.04)' : '';
+  gbpTbody.innerHTML += `<tr style="${rowBg}">
+    <td style="padding:7px 10px;border:1px solid var(--border);font-weight:${r.year===2026?'700':'400'};color:${r.year===2026?'var(--green)':'var(--text)'}">${isNew ? '<span style="font-size:10px;color:var(--muted);margin-right:4px">'+r.year+'</span>' : ''}${r.month}</td>
+    <td style="padding:7px 10px;border:1px solid var(--border);text-align:center;font-weight:600">${r.insights.toLocaleString()}</td>
+    <td style="padding:7px 10px;border:1px solid var(--border);text-align:center">${r.calls}</td>
+    <td style="padding:7px 10px;border:1px solid var(--border);text-align:center">${r.chat}</td>
+    <td style="padding:7px 10px;border:1px solid var(--border);text-align:center">${r.directions}</td>
+    <td style="padding:7px 10px;border:1px solid var(--border);text-align:center">${r.website}</td>
+  </tr>`;
+});
+// Totals rows
+const tot26 = GBP_DATA.filter(r=>r.year===2026).reduce((a,r)=>({insights:a.insights+r.insights,calls:a.calls+r.calls,chat:a.chat+r.chat,directions:a.directions+r.directions,website:a.website+r.website}),{insights:0,calls:0,chat:0,directions:0,website:0});
+const tot25 = GBP_DATA.filter(r=>r.year===2025).reduce((a,r)=>({insights:a.insights+r.insights,calls:a.calls+r.calls,chat:a.chat+r.chat,directions:a.directions+r.directions,website:a.website+r.website}),{insights:0,calls:0,chat:0,directions:0,website:0});
+['2026 Total|'+tot26,'2025 Total|'+JSON.stringify(tot25)].forEach((line,idx) => {
+  const [label, obj] = idx===0 ? ['2026 Total', tot26] : ['2025 Total', tot25];
+  gbpTbody.innerHTML += `<tr style="background:var(--card2);font-weight:700">
+    <td style="padding:7px 10px;border:1px solid var(--border);color:var(--muted)">${label}</td>
+    <td style="padding:7px 10px;border:1px solid var(--border);text-align:center">${obj.insights.toLocaleString()}</td>
+    <td style="padding:7px 10px;border:1px solid var(--border);text-align:center">${obj.calls}</td>
+    <td style="padding:7px 10px;border:1px solid var(--border);text-align:center">${obj.chat}</td>
+    <td style="padding:7px 10px;border:1px solid var(--border);text-align:center">${obj.directions}</td>
+    <td style="padding:7px 10px;border:1px solid var(--border);text-align:center">${obj.website}</td>
+  </tr>`;
+});
+
+// GBP doughnut chart — March 2026
+new Chart(document.getElementById('gbpChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Insights', 'Directions', 'Website', 'Calls'],
+    datasets: [{
+      data: [375, 48, 16, 3],
+      backgroundColor: ['rgba(22,163,74,0.75)','rgba(234,88,12,0.75)','rgba(37,99,235,0.75)','rgba(124,58,237,0.75)'],
+      borderColor: ['#16a34a','#ea580c','#2563eb','#7c3aed'],
+      borderWidth: 1.5,
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '65%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed}` }}
+    }
+  }
+});
+
+
+</script>
+</body>
+</html>
