@@ -1132,6 +1132,76 @@ function buildCharts() {
       }
     });
   }
+
+  // Overview — Leads by Source
+  if (!chartInstances.overviewLeads && document.getElementById('overviewLeadsChart')) {
+    chartInstances.overviewLeads = new Chart(document.getElementById('overviewLeadsChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Meta Ads', 'GBP (Phone)', 'Organic (CallRail)', 'Direct Calls'],
+        datasets: [{
+          label: 'Leads / Calls',
+          data: [13, 2, 2, 7],
+          backgroundColor: ['#0048fe','#16a34a','#7c3aed','#f99e23'],
+          borderRadius: 6, borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#6b7280', font: { size: 11 } }, grid: { display: false } },
+          y: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  // Overview — Ad Spend Allocation
+  if (!chartInstances.overviewSpend && document.getElementById('overviewSpendChart')) {
+    chartInstances.overviewSpend = new Chart(document.getElementById('overviewSpendChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Google Ads (RTM) $1,377', 'Meta Ads $1,337'],
+        datasets: [{
+          data: [1376.78, 1336.78],
+          backgroundColor: ['rgba(0,72,254,0.7)','rgba(249,158,35,0.7)'],
+          borderColor: ['#0048fe','#f99e23'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '60%',
+        plugins: { legend: { position: 'bottom', labels: { color: '#374151', font: { size: 11 }, boxWidth: 14 } } }
+      }
+    });
+  }
+
+  // Overview — Call Volume Breakdown
+  if (!chartInstances.overviewCall && document.getElementById('overviewCallChart')) {
+    chartInstances.overviewCall = new Chart(document.getElementById('overviewCallChart'), {
+      type: 'bar',
+      data: {
+        labels: ['New Leads', 'Existing Clients', 'Vendor / Solicitation', 'Spam / Disconnect'],
+        datasets: [{
+          label: 'Calls',
+          data: [5, 8, 7, 40],
+          backgroundColor: ['rgba(22,163,74,0.75)','rgba(0,72,254,0.75)','rgba(124,58,237,0.75)','rgba(220,38,38,0.75)'],
+          borderColor: ['#16a34a','#0048fe','#7c3aed','#dc2626'],
+          borderWidth: 2, borderRadius: 6
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: true },
+          y: { ticks: { color: '#374151', font: { size: 12, weight: '600' } }, grid: { display: false } }
+        }
+      }
+    });
+  }
 }
 
 setTimeout(buildCharts, 400);
