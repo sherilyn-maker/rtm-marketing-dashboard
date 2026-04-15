@@ -12,7 +12,7 @@ body{font-family:'Outfit',system-ui,sans-serif;background:#f4f7fb;color:#181d27;
 a{color:#0048fe;text-decoration:none}
 
 /* ── HEADER ── */
-.site-header{background:linear-gradient(135deg,#0048fe 0%,#0035c0 100%);color:#fff;padding:18px 32px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,72,254,.3)}
+.site-header{background:#2b7bb9;color:#fff;padding:18px 32px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(43,123,185,.3)}
 .header-inner{display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:0 auto;gap:16px;flex-wrap:wrap}
 .logo-wrap{display:flex;align-items:center;gap:14px}
 .logo-text h1{font-size:18px;font-weight:700;line-height:1.2}
@@ -190,10 +190,7 @@ tbody tr:last-child td{border-bottom:none}
 <header class="site-header">
   <div class="header-inner">
     <div class="logo-wrap">
-      <svg width="52" height="52" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
-        <rect width="52" height="52" rx="8" fill="#0d1117"/>
-        <polygon points="26,8 30,20 42,20 33,28 36,40 26,32 16,40 19,28 10,20 22,20" fill="#f99e23"/>
-      </svg>
+      <img src="data:image/webp;base64,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" alt="Real Time Marketing" style="height:52px;width:auto;display:block">
       <div class="logo-text">
         <h1>Real Time Marketing — Performance Dashboard</h1>
         <p>realtimemarketing.com &nbsp;·&nbsp; March 1 – April 14, 2026 &nbsp;·&nbsp; 45 Days</p>
@@ -230,7 +227,7 @@ tbody tr:last-child td{border-bottom:none}
     <table>
       <thead><tr><th>Channel</th><th>Key Metric</th><th>Value</th><th>Status</th><th>Trend</th><th>Priority Action</th></tr></thead>
       <tbody>
-        <tr><td><strong>SEO / Organic</strong></td><td>GSC Clicks</td><td>364 clicks / 275K impressions</td><td><span class="tag tag-red">🔴 Critical</span></td><td>0.13% CTR vs 2–5% target</td><td>Fix conversion tracking + schema</td></tr>
+        <tr><td><strong>SEO / Organic</strong></td><td>GSC Clicks</td><td>364 clicks / 275K impressions</td><td><span class="tag tag-yellow">🟡 Watch</span></td><td>0.13% CTR vs 2–5% target</td><td>Build AI Overview-targeting content + scale keywords</td></tr>
         <tr><td><strong>Google Business Profile</strong></td><td>Profile Views</td><td>375 views / Mar 2026</td><td><span class="tag tag-yellow">🟡 Watch</span></td><td>-8% vs Mar 2025 (408)</td><td>Increase posts + Q&amp;A</td></tr>
         <tr><td><strong>Meta Ads</strong></td><td>Leads Generated</td><td>13 leads / $1,337 spend</td><td><span class="tag tag-green">🟢 Good</span></td><td>$102.83 CPL</td><td>Scale SEO campaign budget</td></tr>
         <tr><td><strong>Google Ads</strong></td><td>Ad Spend (RTM)</td><td>$1,376.78 / 0 conversions</td><td><span class="tag tag-red">🔴 Critical</span></td><td>0 tracked conversions</td><td>Set up conversion tracking NOW</td></tr>
@@ -264,6 +261,22 @@ tbody tr:last-child td{border-bottom:none}
     </div>
   </div>
 
+  <div class="chart-row" style="margin-bottom:24px">
+    <div class="chart-card">
+      <h3>Channel Performance — Leads by Source (Mar 2026)</h3>
+      <div class="chart-wrap"><canvas id="overviewLeadsChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Monthly Ad Spend Allocation</h3>
+      <div class="chart-wrap"><canvas id="overviewSpendChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-bottom:24px">
+    <h3>Call Volume Breakdown — March 2026 (60 Total Calls)</h3>
+    <div class="chart-wrap" style="height:200px"><canvas id="overviewCallChart"></canvas></div>
+  </div>
+
   <div class="analysis-grid">
     <div class="analysis-card strengths">
       <h4>✅ Overall Strengths</h4>
@@ -295,7 +308,7 @@ tbody tr:last-child td{border-bottom:none}
         <li>Launch IVR/spam filter on CallRail — "Press 1 for new inquiries"</li>
         <li>Scale Meta SEO campaign — $89 CPL vs $124, shift 25% of budget</li>
         <li>Improve GBP — weekly posts, 48hr review response, add Q&amp;A</li>
-        <li>Target AI Overview gaps in Q2 content strategy</li>
+        <li>FAQ schema live on all service pages — now target AI Overview citations</li>
         <li>Follow up: Dreyson Righteous (Atlanta) and Wayne Leiser (Sarasota)</li>
         <li>Establish April 2026 baseline: ~18–20 total monthly leads</li>
       </ol>
@@ -351,24 +364,42 @@ tbody tr:last-child td{border-bottom:none}
       <div class="kpi-delta delta-warn">Below 50–60% benchmark</div>
     </div>
     <div class="kpi-card kpi-orange">
-      <div class="kpi-label">Organic Conversions</div><div class="kpi-value">2</div>
-      <div class="kpi-sub">From organic source calls</div>
-      <div class="kpi-delta delta-warn">Eli Iluz + Tite Mold</div>
+      <div class="kpi-label">Organic Conversions (CallRail)</div><div class="kpi-value">14</div>
+      <div class="kpi-sub">All calls that landed on website</div>
+      <div class="kpi-delta delta-warn">Organic + Direct sources</div>
     </div>
   </div>
 
   <div class="box box-green" style="margin-bottom:24px">
-    <h3>✅ CallRail Organic &amp; Direct Conversions (Excluding GBP, Google Ads &amp; Social)</h3>
+    <h3>📞 CallRail Data — Organic &amp; Direct Source Calls (Excluding GBP, Google Ads &amp; Social)</h3>
+    <p style="font-size:12px;color:#374151;margin-bottom:12px">All calls from Organic and Direct sources are shown below, including spam and short-duration calls. Tagged by classification.</p>
     <div class="table-wrap" style="margin-bottom:0">
       <table>
-        <thead><tr><th>Date</th><th>Caller</th><th>Location</th><th>Source</th><th>Duration</th><th>Status</th><th>Notes</th></tr></thead>
+        <thead><tr><th>Date</th><th>Caller</th><th>Location</th><th>Source</th><th>Duration</th><th>Classification</th><th>Notes</th></tr></thead>
         <tbody>
-          <tr><td>Mar 16</td><td><strong>Eli Iluz (Lion Home Services)</strong></td><td>Portsmouth, VA</td><td>Google Organic</td><td>1m 57s</td><td><span class="tag tag-green">✅ Valid Lead</span></td><td>Asking about PPC + SEO pricing. Follow-up scheduled.</td></tr>
-          <tr><td>Mar 23</td><td><strong>Tite Mold</strong></td><td>Bethlehem, PA</td><td>Google Organic</td><td>0m 44s</td><td><span class="tag tag-yellow">⚠ Missed</span></td><td>Asked about Google Service Ads. Hung up before dispatch responded.</td></tr>
+          <tr style="background:#f0fdf4"><td>Mar 16</td><td><strong>Eli Iluz (Lion Home Services)</strong></td><td>Portsmouth, VA</td><td>Google Organic</td><td>1m 57s</td><td><span class="tag tag-green">🟢 NEW LEAD</span></td><td>Asking about PPC + SEO pricing. Follow-up scheduled.</td></tr>
+          <tr style="background:#fef9c3"><td>Mar 23</td><td><strong>Tite Mold</strong></td><td>Bethlehem, PA</td><td>Google Organic</td><td>0m 44s</td><td><span class="tag tag-yellow">🟠 SHORT / Missed</span></td><td>Asked about Google Service Ads — hung up. Missed opportunity.</td></tr>
+          <tr><td>Mar 4</td><td>Kathy Marshall / CI Web Group</td><td>—</td><td>Direct</td><td>1m 30s</td><td><span class="tag tag-blue">🔵 Existing Client</span></td><td>Voicemail re: Gold Star Plumbing follow-up</td></tr>
+          <tr><td>Mar 9</td><td>Kathy Marshall / CI Web Group</td><td>—</td><td>Direct</td><td>2m 27s</td><td><span class="tag tag-blue">🔵 Existing Client</span></td><td>Called back about Gold Star Plumbing &amp; Drain</td></tr>
+          <tr><td>Mar 11</td><td>Vinson Construction</td><td>—</td><td>Direct</td><td>1m 40s</td><td><span class="tag tag-blue">🔵 Existing Client</span></td><td>Wants to pay annual fee — forwarded to team</td></tr>
+          <tr><td>Mar 19</td><td>Jermaine / iSupport Worldwide</td><td>—</td><td>Direct</td><td>1m 27s</td><td><span class="tag tag-purple">🟣 Vendor</span></td><td>Offshore staffing pitch — Philippines</td></tr>
+          <tr><td>Mar 23</td><td>Critical Point Investment Bank</td><td>—</td><td>Direct</td><td>1m 56s</td><td><span class="tag tag-purple">🟣 Vendor</span></td><td>Investment opportunity pitch</td></tr>
+          <tr><td>Mar 24</td><td>Ray Poe (for Olguin Rolando)</td><td>—</td><td>Direct</td><td>1m 35s</td><td><span class="tag tag-blue">🔵 Existing Client</span></td><td>Rheem water heater warranty — forwarded</td></tr>
+          <tr><td>Mar 26</td><td>Cheryl / The Plumbing Doc</td><td>—</td><td>Direct</td><td>1m 48s</td><td><span class="tag tag-blue">🔵 Existing Client</span></td><td>Trying to reach Kelly Ruffle — voicemail left</td></tr>
+          <tr><td>Mar 26</td><td>Cheryl / The Plumbing Doc</td><td>—</td><td>Direct</td><td>2m 36s</td><td><span class="tag tag-blue">🔵 Existing Client</span></td><td>Connected to Victoria who reached Kelly — resolved</td></tr>
+          <tr><td>Mar 27</td><td>Rebecca / Nashville, TN</td><td>Nashville, TN</td><td>Direct</td><td>3m 22s</td><td><span class="tag tag-purple">🟣 Vendor</span></td><td>Employment background verification — declined</td></tr>
+          <tr><td>Mar 30</td><td>John / Irvine, CA</td><td>Irvine, CA</td><td>Direct</td><td>2m 24s</td><td><span class="tag tag-purple">🟣 Vendor</span></td><td>Employment verification — directed to email HR</td></tr>
+          <tr><td>Mar 31</td><td>John / Irvine, CA</td><td>Irvine, CA</td><td>Direct</td><td>2m 26s</td><td><span class="tag tag-purple">🟣 Vendor</span></td><td>Same employment verification follow-up</td></tr>
+          <tr><td>Mar 31</td><td>Vinson Kelly / Vinson Construction</td><td>—</td><td>Direct</td><td>1m 43s</td><td><span class="tag tag-blue">🔵 Existing Client</span></td><td>Invoice payment — passed to team</td></tr>
+          <tr><td>Mar 2</td><td>Twice as Nice (recruiting firm)</td><td>—</td><td>Direct</td><td>2m 37s</td><td><span class="tag tag-purple">🟣 Vendor</span></td><td>Looking for "Rick Clark" re: permanent positions</td></tr>
+          <tr><td>Mar 2</td><td>Today's Exteriors</td><td>—</td><td>Direct</td><td>3m 48s</td><td><span class="tag tag-purple">🟣 Vendor</span></td><td>Wanted website login/password — declined per IT security</td></tr>
+          <tr><td>Various (15+)</td><td>Unknown / Robocalls</td><td>Various</td><td>Direct</td><td>&lt;30s each</td><td><span class="tag tag-red">🔴 Spam</span></td><td>Automated hang-ups, no-response after answer, outside-hours drops. Repeat patterns from same caller IDs.</td></tr>
         </tbody>
       </table>
     </div>
-    <p style="font-size:11px;color:#6b7280;margin-top:10px"><em>Existing client calls (Vinson Construction, Kathy Marshall, Cheryl) and vendor calls (Twice as Nice, Today's Exteriors, iSupport, Critical Point) excluded — not new organic leads.</em></p>
+    <div style="margin-top:10px;padding:10px 14px;background:rgba(0,72,254,0.05);border-radius:6px;font-size:11px;color:#374151">
+      <strong>Summary:</strong> 2 organic leads (Eli Iluz + Tite Mold) · 7 existing client calls · 5 vendor/solicitation calls · 15+ Direct spam/robocalls · Total Direct source calls: ~29 · Organic: 2
+    </div>
   </div>
 
   <div class="chart-row">
@@ -387,10 +418,10 @@ tbody tr:last-child td{border-bottom:none}
     <table>
       <thead><tr><th>Keyword</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Avg Pos</th><th>Type</th><th>AI Platform Visibility</th></tr></thead>
       <tbody>
-        <tr><td>real time marketing</td><td>90</td><td>2,065</td><td>4.36%</td><td>7.9</td><td><span class="tag tag-blue">Brand</span></td><td>Not typically cited (brand-specific)</td></tr>
-        <tr><td>realtime marketing</td><td>23</td><td>690</td><td>3.33%</td><td>4.0</td><td><span class="tag tag-blue">Brand</span></td><td>Not cited</td></tr>
-        <tr><td>realtimemarketing</td><td>16</td><td>26</td><td>61.54%</td><td>1.1</td><td><span class="tag tag-blue">Brand</span></td><td>Not cited</td></tr>
-        <tr><td>real time marketing reviews</td><td>5</td><td>23</td><td>21.74%</td><td>1.4</td><td><span class="tag tag-blue">Brand</span></td><td>Not cited</td></tr>
+        <tr><td>home services digital marketing agency</td><td>4</td><td>3,410</td><td>0.12%</td><td>9.4</td><td><span class="tag tag-orange">Commercial</span></td><td>Google AI Overview present — RTM not cited</td></tr>
+        <tr><td>google local service ads management</td><td>3</td><td>1,850</td><td>0.16%</td><td>7.2</td><td><span class="tag tag-orange">Commercial</span></td><td>No AI citation found — opportunity to rank</td></tr>
+        <tr><td>plumber marketing agency</td><td>2</td><td>1,620</td><td>0.12%</td><td>11.3</td><td><span class="tag tag-orange">Commercial</span></td><td>No AI citation — high commercial intent</td></tr>
+        <tr><td>real time marketing reviews</td><td>5</td><td>23</td><td>21.74%</td><td>1.4</td><td><span class="tag tag-blue">Brand</span></td><td>Not cited (brand-specific)</td></tr>
         <tr><td>digital marketing for home services</td><td>3</td><td>2,698</td><td>0.11%</td><td>8.2</td><td><span class="tag tag-orange">Commercial</span></td><td>Google AI Overview present — RTM not cited</td></tr>
         <tr><td>digital marketing for plumbers</td><td>3</td><td>2,733</td><td>0.11%</td><td>14.5</td><td><span class="tag tag-orange">Commercial</span></td><td>Google AI Overview present — RTM not cited</td></tr>
         <tr><td>seo for contractors</td><td>2</td><td>2,135</td><td>0.09%</td><td>10.2</td><td><span class="tag tag-orange">Commercial</span></td><td>ChatGPT cites general tips — RTM not cited</td></tr>
@@ -415,16 +446,16 @@ tbody tr:last-child td{border-bottom:none}
   </div>
   <div class="note-box"><strong>Total estimated monthly click gain</strong> if all 5 terms reach target: <strong>~200+ additional clicks/month</strong> → at 2% lead conversion = <strong>4–5 new qualified leads/month</strong> from organic alone.</div>
 
-  <h3 style="font-size:15px;font-weight:700;margin:24px 0 12px">Confirmed Tampa Rankings vs GSC National Average</h3>
+  <h3 style="font-size:15px;font-weight:700;margin:24px 0 12px">Confirmed Local Rankings (Tampa, FL &amp; Bradenton, FL) vs GSC National Average</h3>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Keyword</th><th>Tampa Rank</th><th>GSC Avg Pos</th><th>GSC Clicks</th><th>GSC Impressions</th><th>CTR</th><th>Gap Analysis</th></tr></thead>
+      <thead><tr><th>Keyword</th><th>Tampa, FL Rank</th><th>Bradenton, FL Rank</th><th>GSC Avg Pos</th><th>GSC Clicks</th><th>GSC Impressions</th><th>CTR</th><th>Gap Analysis</th></tr></thead>
       <tbody>
-        <tr><td>LSA for plumbers</td><td>#2</td><td>~20</td><td>1</td><td>578</td><td>0.17%</td><td>AI Overview above — eating clicks despite rank</td></tr>
-        <tr><td>LSA for HVAC</td><td>#4</td><td>~10</td><td>6</td><td>9,079</td><td>0.07%</td><td>Massive impressions, AI + ads capturing intent</td></tr>
-        <tr><td>LSA management for plumbers</td><td>#3</td><td>~20</td><td>4</td><td>4,811</td><td>0.08%</td><td>Position varies heavily by location</td></tr>
-        <tr><td>LSA management for HVAC</td><td>#2</td><td>~9.5</td><td>6</td><td>9,079</td><td>0.07%</td><td>Google HVAC LSA page: 9,079 impressions, 6 clicks</td></tr>
-        <tr><td>Digital marketing for plumbers</td><td>#2</td><td>14.5</td><td>3</td><td>2,733</td><td>0.11%</td><td>Geo-ranking discrepancy — national avg much lower</td></tr>
+        <tr><td>LSA for plumbers</td><td><span class="tag tag-green">#2</span></td><td><span class="tag tag-green">#3</span></td><td>~20</td><td>1</td><td>578</td><td>0.17%</td><td>AI Overview above — eating clicks despite rank</td></tr>
+        <tr><td>LSA for HVAC</td><td><span class="tag tag-green">#4</span></td><td><span class="tag tag-green">#4</span></td><td>~10</td><td>6</td><td>9,079</td><td>0.07%</td><td>Massive impressions, AI + ads capturing intent</td></tr>
+        <tr><td>LSA management for plumbers</td><td><span class="tag tag-green">#3</span></td><td><span class="tag tag-green">#2</span></td><td>~20</td><td>4</td><td>4,811</td><td>0.08%</td><td>Position varies by location — Bradenton stronger</td></tr>
+        <tr><td>LSA management for HVAC</td><td><span class="tag tag-green">#2</span></td><td><span class="tag tag-green">#3</span></td><td>~9.5</td><td>6</td><td>9,079</td><td>0.07%</td><td>Google HVAC LSA page: 9,079 impressions, 6 clicks</td></tr>
+        <tr><td>Digital marketing for plumbers</td><td><span class="tag tag-green">#2</span></td><td><span class="tag tag-green">#2</span></td><td>14.5</td><td>3</td><td>2,733</td><td>0.11%</td><td>Strong local presence; national avg much lower</td></tr>
       </tbody>
     </table>
   </div>
@@ -459,14 +490,14 @@ tbody tr:last-child td{border-bottom:none}
         <li>Mobile engagement 37.8% — nearly 50% bounce rate on mobile</li>
         <li>AI Overviews present on all high-volume commercial keywords</li>
         <li>Internal traffic (~51%) distorting all GA4 metrics</li>
-        <li>No schema markup detected on key service pages</li>
+        <li>FAQ schema implemented on all service pages ✅ — now focus on AI Overview citation strategy</li>
       </ul>
     </div>
     <div class="analysis-card recs">
       <h4>📋 SEO Recommendations</h4>
       <ul>
         <li>Set GA4 conversion event on /thank-you page — do this week</li>
-        <li>Add FAQ schema to service pages to appear in AI Overviews</li>
+        <li>FAQ schema is already live — focus on structured answer snippets to get cited inside AI Overviews</li>
         <li>Filter internal IP ranges from GA4 to clean up session data</li>
         <li>Target long-tail "how to" + local queries to avoid AI Overview competition</li>
         <li>Build 6 Q2 blog posts targeting high-impression, low-CTR keywords</li>
@@ -792,18 +823,18 @@ tbody tr:last-child td{border-bottom:none}
   <h3 style="font-size:15px;font-weight:700;margin:24px 0 12px">Keyword Rankings — Bradenton, FL (Jan–Mar 2026)</h3>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Keyword</th><th>Jan 2026</th><th>Feb 2026</th><th>Mar 2026</th><th>Trend</th></tr></thead>
+      <thead><tr><th>Keyword</th><th>Jan 2026</th><th>Feb 2026</th><th>Mar 2026</th><th>Apr 2026</th><th>Trend</th></tr></thead>
       <tbody>
-        <tr><td>SEO for Plumbers in [Bradenton]</td><td>—</td><td>14</td><td>—</td><td><span class="tag tag-yellow">⚠ Inconsistent</span></td></tr>
-        <tr><td>GBP for Plumber in [Bradenton]</td><td>—</td><td>—</td><td>—</td><td><span class="tag tag-red">Not ranking</span></td></tr>
-        <tr><td>Website design for plumbers in [Bradenton]</td><td>10</td><td>11</td><td>6</td><td><span class="tag tag-green">📈 Improving</span></td></tr>
-        <tr><td>Social Media Marketing for Plumbers in [Bradenton]</td><td>1</td><td>1</td><td>1</td><td><span class="tag tag-green">✅ Stable #1</span></td></tr>
-        <tr><td>SEO for Trenchless Pipe and Sewer Repair in [Bradenton]</td><td>—</td><td>—</td><td>—</td><td><span class="tag tag-red">Not ranking</span></td></tr>
-        <tr><td>GBP for Trenchless Pipe and Sewer in [Bradenton]</td><td>—</td><td>—</td><td>—</td><td><span class="tag tag-red">Not ranking</span></td></tr>
-        <tr><td>GBP for Roofers in [Bradenton]</td><td>—</td><td>—</td><td>—</td><td><span class="tag tag-red">Not ranking</span></td></tr>
-        <tr><td>Google Ads for trenchless pipe services in [Bradenton]</td><td>—</td><td>1</td><td>1</td><td><span class="tag tag-green">📈 New ranking</span></td></tr>
-        <tr><td>Social media marketing for Air Conditioning in [Bradenton]</td><td>1</td><td>1</td><td>1</td><td><span class="tag tag-green">✅ Stable #1</span></td></tr>
-        <tr><td>Google LSA for pest control in [Bradenton]</td><td>—</td><td>—</td><td>20</td><td><span class="tag tag-yellow">Low — page 2+</span></td></tr>
+        <tr><td>SEO for Plumbers in [Bradenton]</td><td>—</td><td>14</td><td>—</td><td><span class="tag tag-yellow">—</span></td><td><span class="tag tag-yellow">⚠ Inconsistent</span></td></tr>
+        <tr><td>GBP for Plumber in [Bradenton]</td><td>—</td><td>—</td><td>—</td><td><span class="tag tag-red">—</span></td><td><span class="tag tag-red">Not ranking</span></td></tr>
+        <tr><td>Website design for plumbers in [Bradenton]</td><td>10</td><td>11</td><td>6</td><td><span class="tag tag-green">5</span></td><td><span class="tag tag-green">📈 Improving</span></td></tr>
+        <tr><td>Social Media Marketing for Plumbers in [Bradenton]</td><td>1</td><td>1</td><td>1</td><td><span class="tag tag-green">1</span></td><td><span class="tag tag-green">✅ Stable #1</span></td></tr>
+        <tr><td>SEO for Trenchless Pipe and Sewer Repair in [Bradenton]</td><td>—</td><td>—</td><td>—</td><td><span class="tag tag-red">—</span></td><td><span class="tag tag-red">Not ranking</span></td></tr>
+        <tr><td>GBP for Trenchless Pipe and Sewer in [Bradenton]</td><td>—</td><td>—</td><td>—</td><td><span class="tag tag-red">—</span></td><td><span class="tag tag-red">Not ranking</span></td></tr>
+        <tr><td>GBP for Roofers in [Bradenton]</td><td>—</td><td>—</td><td>—</td><td><span class="tag tag-red">—</span></td><td><span class="tag tag-red">Not ranking</span></td></tr>
+        <tr><td>Google Ads for trenchless pipe services in [Bradenton]</td><td>—</td><td>1</td><td>1</td><td><span class="tag tag-green">1</span></td><td><span class="tag tag-green">📈 Stable #1</span></td></tr>
+        <tr><td>Social media marketing for Air Conditioning in [Bradenton]</td><td>1</td><td>1</td><td>1</td><td><span class="tag tag-green">1</span></td><td><span class="tag tag-green">✅ Stable #1</span></td></tr>
+        <tr><td>Google LSA for pest control in [Bradenton]</td><td>—</td><td>—</td><td>20</td><td><span class="tag tag-yellow">18</span></td><td><span class="tag tag-yellow">📈 Slight improvement</span></td></tr>
       </tbody>
     </table>
   </div>
